@@ -20,6 +20,10 @@ jitter, a per-target circuit breaker, dead-letter handling with manual
 replay, and crash recovery - all backed by PostgreSQL as the single durable
 source of truth, with Redis Streams as transport only.
 
+Retryable HTTP responses honor bounded `Retry-After` seconds/date hints through
+durable scheduling, without sleeping in workers. `DELIVERY_MAX_BACKOFF` caps
+both local backoff and downstream hints; longer receiver hints are capped.
+
 **Delivery guarantee: at-least-once with idempotency protection.** This
 system does not claim exactly-once end-to-end delivery - no honest system
 built on an outbox + a network + an arbitrary external target can. A worker
@@ -306,6 +310,19 @@ go run ./cmd/acceptance
 
 It creates temporary resources and stops its own server on exit. This does
 not restart or replace your running application.
+
+With the same test dependency URLs, focused startup/shutdown regressions are:
+
+```bash
+go test -race -count=3 ./internal/store -run '^TestMigrate'
+go test -race -count=3 ./cmd/server -run '^TestSIGTERMDuringDelivery'
+```
+
+The migration tests exercise eight independent pools against one fresh schema,
+lock-wait cancellation and batch rollback. The shutdown test uses real SIGTERM
+and restart on Linux/POSIX (excluded on Windows); it checks in-flight and queued
+work plus future retry deadlines. Synthetic timestamps advance recovery without
+waiting a full grace period, so this is not a recovery-latency benchmark.
 
 ## Documentation
 

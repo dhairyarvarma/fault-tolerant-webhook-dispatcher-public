@@ -412,3 +412,46 @@ receiver effects. Operators must choose a window longer than replay/audit
 obligations and back up before enabling it. DLQ, targets, Redis history and
 physical disk reclamation are not automatically bounded. No cleanup will
 be run against the user's existing data as part of implementation/testing.
+
+## Decision 43 — Bound downstream Retry-After with the existing retry cap
+
+Honor a single Retry-After header on retryable HTTP responses (408, 429,
+5xx), accepting decimal delay-seconds or an HTTP date. Use the larger of
+full-jitter backoff and the requested delay, capped at DELIVERY_MAX_BACKOFF.
+Ignore malformed, duplicate, past or over-128-byte values; overflowing valid
+decimal values saturate at the cap. HTTP dates use the dispatcher's clock.
+Persist the chosen next_attempt_at with the fenced attempt transaction;
+do not sleep in workers or reset attempt budgets. Raw headers are not logged
+or stored. The cap can deliberately shorten an excessive receiver hint.
+This is per-event scheduling, not a target-wide request-rate limiter.
+
+## Decision 44 — Serialize the complete pending migration batch
+
+Before creating/checking schema_migrations, acquire a transaction-scoped
+PostgreSQL advisory lock keyed by current_schema() and namespace 70132.
+Use that transaction for version checks, DDL and version inserts. Commit
+the complete pending batch atomically; any failure/cancellation rolls it
+back and releases the lock. Previously committed migrations remain intact.
+All cooperating new instances use the same lock regardless of process.
+
+The existing ten-second startup context bounds lock waiting and migration
+execution. A waiting instance can fail startup safely and be restarted.
+Future migrations must remain transaction-compatible (no CREATE INDEX
+CONCURRENTLY). This does not coordinate older binaries lacking this lock,
+or make mixed-version schema changes automatically safe. Rollouts must
+still preserve backward compatibility and backups.
+
+## Decision 45 — Verify bounded shutdown and durable restart recovery
+
+SIGTERM stops background work through context cancellation and closes the
+HTTP listener, with a ten-second shutdown budget. An in-flight outbound
+request may be canceled, rather than drained to success. Never acknowledge
+an uncommitted outcome: preserve pending transport/durable work for recovery.
+Delivery lease release uses an independent bounded context; an interrupted
+release is still recoverable after lease expiry/reconciliation.
+
+The Linux process regression sends real SIGTERM during a held receiver call,
+checks pending work and a future retry, then restarts the same server state.
+It advances only the synthetic stale-work timestamp to avoid a one-minute
+test sleep; this verifies recovery correctness, not wall-clock crash latency.
+Exactly-once receiver effects are not guaranteed during cancellation.

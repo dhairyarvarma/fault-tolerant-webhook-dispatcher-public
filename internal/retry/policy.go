@@ -3,8 +3,11 @@
 package retry
 
 import (
+	"errors"
 	"math/rand/v2"
 	"net/http"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/dhairyarajvarma/webhook-dispatcher/internal/delivery"
@@ -53,6 +56,46 @@ func (p Policy) NextDelay(attemptNumber int) time.Duration {
 		return 0
 	}
 	return time.Duration(rand.Uint64N(uint64(delay) + 1))
+}
+
+// NextDelayFor honors a bounded downstream hint without shortening local backoff.
+func (p Policy) NextDelayFor(attemptNumber int, result delivery.Result) time.Duration {
+	delay := p.NextDelay(attemptNumber)
+	if result.HTTPStatus != nil && Classify(result) == store.OutcomeRetryableFailure {
+		if hint := retryAfterDelay(result.RetryAfter, result.FinishedAt, p.MaxBackoff); hint > delay {
+			delay = hint
+		}
+	}
+	return delay
+}
+
+func retryAfterDelay(raw string, now time.Time, cap time.Duration) time.Duration {
+	if len(raw) > 128 || cap <= 0 {
+		return 0
+	}
+	raw = strings.TrimSpace(raw)
+	if raw == "" {
+		return 0
+	}
+	digits := true
+	for _, c := range raw {
+		if c < '0' || c > '9' {
+			digits = false
+			break
+		}
+	}
+	if digits {
+		seconds, err := strconv.ParseUint(raw, 10, 64)
+		if errors.Is(err, strconv.ErrRange) || seconds > uint64(cap/time.Second) {
+			return cap
+		}
+		return time.Duration(seconds) * time.Second
+	}
+	date, err := http.ParseTime(raw)
+	if err != nil || !date.After(now) {
+		return 0
+	}
+	return min(date.Sub(now), cap)
 }
 
 func (p Policy) delayCap(attemptNumber int) time.Duration {

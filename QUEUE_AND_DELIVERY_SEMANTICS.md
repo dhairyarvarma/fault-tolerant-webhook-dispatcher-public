@@ -102,6 +102,14 @@ These are defaults to benchmark and tune, not guaranteed production values.
 
 The implementation must make this policy explicit and test each class.
 
+For retryable HTTP responses, a single valid Retry-After value (delay-seconds
+or HTTP date) is a minimum delay, bounded by DELIVERY_MAX_BACKOFF. The actual
+delay is max(jittered backoff, bounded hint). Invalid, duplicate, expired or
+over-128-byte hints fall back to backoff. An exhausted attempt still reaches
+DLQ. The chosen next_attempt_at is committed with the attempt and recovered
+through the scheduler/outbox; no worker sleeps for the delay. This is not a
+target-wide rate limit. See Decision 43 for clock and cap tradeoffs.
+
 ## Idempotency
 
 Every delivery must carry a stable idempotency key derived from the event/target identity.

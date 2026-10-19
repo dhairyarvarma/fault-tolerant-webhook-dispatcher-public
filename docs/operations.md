@@ -116,6 +116,22 @@ specifically named rehearsal resources after retaining the evidence.
 
 ## Restart, lost transport, and rollback
 
+Startup migrations are serialized per PostgreSQL schema with a transaction-scoped
+advisory lock. The migration table, version checks and pending DDL batch use the
+same transaction; failures roll back the pending batch and release the lock.
+The ten-second startup deadline also bounds lock waiting. If another instance
+holds it too long, startup fails safely; restart after the migration completes.
+New pending migrations must support transactions. Older binaries without this
+lock and incompatible mixed-version schemas still require controlled rollout.
+
+SIGTERM cancels background work and closes the API listener with a ten-second
+shutdown budget. An active outbound call may be interrupted rather than drained.
+Uncommitted outcomes must remain recoverable and are not acknowledged. A receiver
+may already have acted, so restart can repeat HTTP with the same event identity.
+An interrupted lease release falls back to lease expiry/stale-work reconciliation.
+Future RETRY_WAIT deadlines are preserved. The real-signal regression and repeated
+migration tests are listed in README's Development section.
+
 For a dedicated test stack, create a target/event, retain its ID and attempt
 history, restart api, and verify old history plus a new delivery. An in-flight
 crash can repeat HTTP with the same idempotency key. A full Redis stream loss

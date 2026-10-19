@@ -58,6 +58,7 @@ type Result struct {
 	FinishedAt   time.Time
 	ErrorClass   *string
 	ErrorMessage *string
+	RetryAfter   string
 }
 
 // Deliver sends the payload with stable identity and signs configured targets.
@@ -109,6 +110,10 @@ func (c *Client) Deliver(ctx context.Context, target store.Target, event store.E
 
 	msg := fmt.Sprintf("target responded with status %d", status)
 	errClass := "http_error"
+	var retryAfter string
+	if values := resp.Header.Values("Retry-After"); len(values) == 1 && len(values[0]) <= 128 {
+		retryAfter = values[0]
+	}
 	return Result{
 		Success:      false,
 		HTTPStatus:   &status,
@@ -116,6 +121,7 @@ func (c *Client) Deliver(ctx context.Context, target store.Target, event store.E
 		FinishedAt:   finished,
 		ErrorClass:   &errClass,
 		ErrorMessage: &msg,
+		RetryAfter:   retryAfter,
 	}
 }
 

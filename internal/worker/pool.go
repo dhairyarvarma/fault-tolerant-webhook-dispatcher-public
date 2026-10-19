@@ -366,7 +366,9 @@ func (p *Pool) handle(ctx context.Context, msg redis.XMessage, consumers ...stri
 		ErrorMessage: result.ErrorMessage,
 	}
 
-	applied, err := p.events.RecordAttemptAndTransition(ctx, eventID, attempt, p.retryPolicy.MaxAttempts, p.retryPolicy.NextDelay, token)
+	applied, err := p.events.RecordAttemptAndTransition(ctx, eventID, attempt, p.retryPolicy.MaxAttempts, func(number int) time.Duration {
+		return p.retryPolicy.NextDelayFor(number, result)
+	}, token)
 	if err != nil {
 		return fmt.Errorf("record attempt: %w", err)
 	}

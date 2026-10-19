@@ -13,10 +13,17 @@ import (
 var migrationFiles embed.FS
 
 // Migrate applies any pending SQL migrations in migrations/, in filename
-// order, tracking applied versions in a schema_migrations table. It is safe
-// to call on every startup.
+// order. One schema-scoped transaction lock serializes concurrent startups.
 func Migrate(ctx context.Context, db *sql.DB) error {
-	if _, err := db.ExecContext(ctx, `
+	tx, err := db.BeginTx(ctx, &sql.TxOptions{Isolation: sql.LevelReadCommitted})
+	if err != nil {
+		return fmt.Errorf("begin migrations: %w", err)
+	}
+	defer tx.Rollback()
+	if _, err := tx.ExecContext(ctx, `SELECT pg_advisory_xact_lock(hashtext(current_schema()), 70132)`); err != nil {
+		return fmt.Errorf("lock migrations: %w", err)
+	}
+	if _, err := tx.ExecContext(ctx, `
 		CREATE TABLE IF NOT EXISTS schema_migrations (
 			version TEXT PRIMARY KEY,
 			applied_at TIMESTAMPTZ NOT NULL DEFAULT now()
@@ -37,7 +44,7 @@ func Migrate(ctx context.Context, db *sql.DB) error {
 
 	for _, name := range names {
 		var alreadyApplied bool
-		if err := db.QueryRowContext(ctx,
+		if err := tx.QueryRowContext(ctx,
 			`SELECT EXISTS(SELECT 1 FROM schema_migrations WHERE version = $1)`, name,
 		).Scan(&alreadyApplied); err != nil {
 			return fmt.Errorf("check migration %s: %w", name, err)
@@ -51,24 +58,18 @@ func Migrate(ctx context.Context, db *sql.DB) error {
 			return fmt.Errorf("read migration %s: %w", name, err)
 		}
 
-		tx, err := db.BeginTx(ctx, nil)
-		if err != nil {
-			return fmt.Errorf("begin migration %s: %w", name, err)
-		}
 		if _, err := tx.ExecContext(ctx, string(contents)); err != nil {
-			tx.Rollback()
 			return fmt.Errorf("apply migration %s: %w", name, err)
 		}
 		if _, err := tx.ExecContext(ctx,
 			`INSERT INTO schema_migrations (version) VALUES ($1)`, name,
 		); err != nil {
-			tx.Rollback()
 			return fmt.Errorf("record migration %s: %w", name, err)
-		}
-		if err := tx.Commit(); err != nil {
-			return fmt.Errorf("commit migration %s: %w", name, err)
 		}
 	}
 
+	if err := tx.Commit(); err != nil {
+		return fmt.Errorf("commit migrations: %w", err)
+	}
 	return nil
 }

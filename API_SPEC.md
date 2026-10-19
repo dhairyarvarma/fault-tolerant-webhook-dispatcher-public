@@ -83,6 +83,13 @@ Response:
 
 Repeated use of the same `Idempotency-Key` for the same target must not create a second logical event.
 
+The current contract returns HTTP 409 with the original top-level `event_id`
+for both identical and different payloads. It does not replace the stored
+payload or create another outbox row. Payload hashes are SHA-256 over the
+submitted payload bytes, not canonicalized JSON. The key is scoped to the
+target and the event's retention lifetime; outbound retries preserve the
+event identity. Receiver-side atomic deduplication is a separate requirement.
+
 ### GET `/api/v1/events?status=`
 
 List newest events with the given status (one of the documented event

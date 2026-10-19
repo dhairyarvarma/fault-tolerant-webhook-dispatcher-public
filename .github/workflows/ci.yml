@@ -70,6 +70,11 @@ jobs:
       - name: Race tests
         run: go test -race ./...
 
+      - name: Repeated startup and real-signal shutdown regressions
+        run: |
+          go test -race -count=3 -timeout 2m ./internal/store -run '^TestMigrate'
+          go test -race -count=3 -timeout 2m ./cmd/server -run '^TestSIGTERMDuringDelivery'
+
       - name: HTTP acceptance against an isolated built server
         run: go run ./cmd/acceptance
 
