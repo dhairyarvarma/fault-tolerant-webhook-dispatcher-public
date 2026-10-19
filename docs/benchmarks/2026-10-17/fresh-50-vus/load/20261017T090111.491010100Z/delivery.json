@@ -1,0 +1,10 @@
+{
+  "accepted": 400,
+  "succeeded": 400,
+  "dlq": 0,
+  "pending": 0,
+  "canceled": 0,
+  "success_latency_p50_seconds": 41.9307065,
+  "success_latency_p95_seconds": 57.245633,
+  "success_latency_p99_seconds": 58.55532705
+}

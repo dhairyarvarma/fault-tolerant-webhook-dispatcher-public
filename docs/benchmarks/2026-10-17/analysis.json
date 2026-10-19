@@ -1,0 +1,116 @@
+{
+  "definition": "Metric maxima across each complete run (including draining); Docker stats averaged over samples from load_started_at through finished_at. CPU percent is Docker's per-core scale; memory is container memory usage, not process RSS.",
+  "runs": [
+    {
+      "run": "20261017T085645.791495100Z",
+      "metric_samples": 51,
+      "max_pending": 551,
+      "max_inflight": 1,
+      "post_load_drain_seconds": 20.0722648,
+      "resources": [
+        {
+          "service": "api",
+          "samples": 11,
+          "cpu_avg": 34.5390909090909,
+          "cpu_max": 41.93,
+          "peak_memory_mib": 12.61
+        },
+        {
+          "service": "postgres",
+          "samples": 11,
+          "cpu_avg": 101.16090909090909,
+          "cpu_max": 107.31,
+          "peak_memory_mib": 86.95
+        },
+        {
+          "service": "redis",
+          "samples": 11,
+          "cpu_avg": 5.500909090909091,
+          "cpu_max": 9.3,
+          "peak_memory_mib": 6.883
+        },
+        {
+          "service": "target-simulator",
+          "samples": 11,
+          "cpu_avg": 1.0227272727272727,
+          "cpu_max": 2.39,
+          "peak_memory_mib": 6.246
+        }
+      ]
+    },
+    {
+      "run": "20261017T085736.664279800Z",
+      "metric_samples": 215,
+      "max_pending": 2394,
+      "max_inflight": 1,
+      "post_load_drain_seconds": 93.9866136,
+      "resources": [
+        {
+          "service": "api",
+          "samples": 50,
+          "cpu_avg": 35.24620000000001,
+          "cpu_max": 44.04,
+          "peak_memory_mib": 13.62
+        },
+        {
+          "service": "postgres",
+          "samples": 50,
+          "cpu_avg": 100.0712,
+          "cpu_max": 109.49,
+          "peak_memory_mib": 93.15
+        },
+        {
+          "service": "redis",
+          "samples": 50,
+          "cpu_avg": 6.198399999999998,
+          "cpu_max": 11.05,
+          "peak_memory_mib": 11.09
+        },
+        {
+          "service": "target-simulator",
+          "samples": 50,
+          "cpu_avg": 1.2264,
+          "cpu_max": 3.03,
+          "peak_memory_mib": 9.762
+        }
+      ]
+    },
+    {
+      "run": "20261017T090111.491010100Z",
+      "metric_samples": 80,
+      "max_pending": 400,
+      "max_inflight": 4,
+      "post_load_drain_seconds": 59.0894797,
+      "resources": [
+        {
+          "service": "api",
+          "samples": 18,
+          "cpu_avg": 17.10722222222222,
+          "cpu_max": 40.4,
+          "peak_memory_mib": 15.49
+        },
+        {
+          "service": "postgres",
+          "samples": 18,
+          "cpu_avg": 48.34333333333334,
+          "cpu_max": 107.02,
+          "peak_memory_mib": 133.7
+        },
+        {
+          "service": "redis",
+          "samples": 18,
+          "cpu_avg": 4.977222222222222,
+          "cpu_max": 10.68,
+          "peak_memory_mib": 6.91
+        },
+        {
+          "service": "target-simulator",
+          "samples": 18,
+          "cpu_avg": 0.6283333333333334,
+          "cpu_max": 1.49,
+          "peak_memory_mib": 9.43
+        }
+      ]
+    }
+  ]
+}

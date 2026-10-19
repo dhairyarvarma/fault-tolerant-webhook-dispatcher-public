@@ -1,0 +1,61 @@
+{
+  "observed_at": "2026-10-17T08:58:17.055793+00:00",
+  "activity": [
+    {
+      "state": "active",
+      "wait_event_type": "IO",
+      "wait_event": "WALSync",
+      "query_prefix": "UPDATE events\n\t\tSET delivery_token=gen_random_uuid(),\n\t\t    delivery_lease_until=now()+$2*interval '1 microsecond', upda",
+      "count": 1
+    },
+    {
+      "state": "active",
+      "wait_event_type": "LWLock",
+      "wait_event": "WALWrite",
+      "query_prefix": "UPDATE outbox_messages SET published_at = now() WHERE id = $1",
+      "count": 1
+    },
+    {
+      "state": "active",
+      "wait_event_type": "Lock",
+      "wait_event": "transactionid",
+      "query_prefix": "SELECT circuit_state, consecutive_failures, circuit_generation, circuit_probe_until FROM targets WHERE id = $1 FOR UPDAT",
+      "count": 1
+    },
+    {
+      "state": "active",
+      "wait_event_type": "Lock",
+      "wait_event": "tuple",
+      "query_prefix": "SELECT circuit_state, circuit_opened_at, circuit_probe_until, circuit_generation FROM targets WHERE id = $1 FOR UPDATE",
+      "count": 2
+    },
+    {
+      "state": "active",
+      "wait_event_type": null,
+      "wait_event": null,
+      "query_prefix": "WITH stale AS (\n\t\tSELECT e.id FROM events e\n\t\tWHERE e.status IN ('PENDING','QUEUED')\n\t\t  AND e.updated_at <= now()-$2*in",
+      "count": 1
+    },
+    {
+      "state": "idle",
+      "wait_event_type": "Client",
+      "wait_event": "ClientRead",
+      "query_prefix": "commit",
+      "count": 1
+    },
+    {
+      "state": "idle in transaction",
+      "wait_event_type": "Client",
+      "wait_event": "ClientRead",
+      "query_prefix": "\n\t\tINSERT INTO outbox_messages (event_id) VALUES ($1)\n\t",
+      "count": 1
+    },
+    {
+      "state": "idle in transaction",
+      "wait_event_type": null,
+      "wait_event": null,
+      "query_prefix": "begin",
+      "count": 1
+    }
+  ]
+}

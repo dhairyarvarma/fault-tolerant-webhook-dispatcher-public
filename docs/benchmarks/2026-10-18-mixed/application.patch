@@ -1,0 +1,129 @@
+diff --git a/cmd/server/main.go b/cmd/server/main.go
+index 792b678..918b10c 100644
+--- a/cmd/server/main.go
++++ b/cmd/server/main.go
+@@ -114,7 +114,7 @@ func run(logger *slog.Logger) error {
+ 	}
+ 	deliveryClient := delivery.NewClient(cfg.DeliveryConnectTimeout, cfg.DeliveryRequestTimeout, cfg.ResponseCaptureMaxBytes, cfg.AllowPrivateTargets, secretBox)
+ 	pool := worker.NewPool(eventStore, targetStore, redisClient, deliveryClient, retryPolicy, circuitCfg, cfg.RedisStream, cfg.RedisConsumerGroup, logger, metrics)
+-	start(func() { pool.Run(appCtx, cfg.WorkerCount) })
++	start(func() { pool.Run(appCtx, cfg.WorkerCount, cfg.WorkerTargetConcurrency) })
+ 
+ 	serverErr := make(chan error, 1)
+ 	go func() {
+diff --git a/internal/config/config.go b/internal/config/config.go
+index a3b1a9a..9e2fd59 100644
+--- a/internal/config/config.go
++++ b/internal/config/config.go
+@@ -34,8 +34,9 @@ type Config struct {
+ 
+ 	AllowPrivateTargets bool
+ 
+-	OutboxPollInterval time.Duration
+-	WorkerCount        int
++	OutboxPollInterval      time.Duration
++	WorkerCount             int
++	WorkerTargetConcurrency int
+ 
+ 	// EventsMaxPending is the admission-control bound on durable pending
+ 	// event rows (EVENTS_MAX_PENDING_EVENTS). 0 disables the limit, which
+@@ -107,6 +108,9 @@ func Load() (Config, error) {
+ 	if cfg.WorkerCount, err = getEnvInt("WORKER_COUNT", 4); err != nil {
+ 		return Config{}, err
+ 	}
++	if cfg.WorkerTargetConcurrency, err = getEnvInt("WORKER_TARGET_CONCURRENCY", 0); err != nil {
++		return Config{}, err
++	}
+ 	if cfg.EventsMaxPending, err = getEnvInt("EVENTS_MAX_PENDING_EVENTS", 0); err != nil {
+ 		return Config{}, err
+ 	}
+@@ -135,6 +139,9 @@ func Load() (Config, error) {
+ 	if cfg.WorkerCount <= 0 || cfg.OutboxPollInterval <= 0 || cfg.DeliveryMaxAttempts <= 0 || cfg.DeliveryMaxAttempts > 100 {
+ 		return Config{}, fmt.Errorf("worker count and poll interval must be positive; max attempts must be between 1 and 100")
+ 	}
++	if cfg.WorkerTargetConcurrency < 0 || cfg.WorkerTargetConcurrency > cfg.WorkerCount {
++		return Config{}, fmt.Errorf("WORKER_TARGET_CONCURRENCY must be between 0 and WORKER_COUNT")
++	}
+ 	if cfg.DeliveryBaseBackoff < 0 || cfg.DeliveryMaxBackoff <= 0 || cfg.DeliveryBaseBackoff > cfg.DeliveryMaxBackoff {
+ 		return Config{}, fmt.Errorf("retry backoff must satisfy 0 <= base <= max and max > 0")
+ 	}
+diff --git a/internal/worker/pool.go b/internal/worker/pool.go
+index a4e2543..abdb605 100644
+--- a/internal/worker/pool.go
++++ b/internal/worker/pool.go
+@@ -8,6 +8,7 @@ import (
+ 	"errors"
+ 	"fmt"
+ 	"log/slog"
++	"math/rand/v2"
+ 	"strings"
+ 	"sync"
+ 	"time"
+@@ -53,6 +54,9 @@ type Pool struct {
+ 	metrics       *observability.Metrics
+ 	reclaimCursor string
+ 	slots         chan struct{}
++	targetLimit   int
++	targetMu      sync.Mutex
++	targetActive  map[string]int
+ }
+ 
+ // CircuitConfig configures the per-target circuit breaker the pool checks
+@@ -76,7 +80,8 @@ func NewPool(
+ // Run starts workerCount goroutines consuming the stream's consumer group
+ // plus one reclaimer goroutine that recovers messages left pending by a
+ // crashed worker, and blocks until ctx is canceled and all have returned.
+-func (p *Pool) Run(ctx context.Context, workerCount int) {
++func (p *Pool) Run(ctx context.Context, workerCount, targetLimit int) {
++	p.targetLimit = targetLimit
+ 	p.slots = make(chan struct{}, workerCount)
+ 	var wg sync.WaitGroup
+ 	for i := 0; i < workerCount; i++ {
+@@ -321,6 +326,11 @@ func (p *Pool) handle(ctx context.Context, msg redis.XMessage, consumers ...stri
+ 	if !target.Enabled {
+ 		return p.events.CancelDelivery(ctx, eventID, token)
+ 	}
++	if !p.acquireTarget(target.ID) {
++		_, err := p.events.DeferRetry(ctx, eventID, time.Now().Add(time.Second+time.Duration(rand.Int64N(int64(time.Second)))), token)
++		return err
++	}
++	defer p.releaseTarget(target.ID)
+ 
+ 	allow, retryAt, generation, err := p.targets.CircuitAllow(ctx, target.ID, p.circuitCfg.OpenCooldown, processingTimeout+5*time.Second)
+ 	if err != nil {
+@@ -373,6 +383,35 @@ func (p *Pool) handle(ctx context.Context, msg redis.XMessage, consumers ...stri
+ 	return nil
+ }
+ 
++func (p *Pool) acquireTarget(id string) bool {
++	if p.targetLimit == 0 {
++		return true
++	}
++	p.targetMu.Lock()
++	defer p.targetMu.Unlock()
++	if p.targetActive[id] >= p.targetLimit {
++		return false
++	}
++	if p.targetActive == nil {
++		p.targetActive = make(map[string]int)
++	}
++	p.targetActive[id]++
++	return true
++}
++
++func (p *Pool) releaseTarget(id string) {
++	if p.targetLimit == 0 {
++		return
++	}
++	p.targetMu.Lock()
++	defer p.targetMu.Unlock()
++	if p.targetActive[id] <= 1 {
++		delete(p.targetActive, id)
++	} else {
++		p.targetActive[id]--
++	}
++}
++
+ func validEventID(id string) bool {
+ 	if len(id) != 36 {
+ 		return false

@@ -1,0 +1,315 @@
+diff --git a/.env.example b/.env.example
+index c537eaf..8f2962d 100644
+--- a/.env.example
++++ b/.env.example
+@@ -20,6 +20,14 @@ CIRCUIT_OPEN_COOLDOWN=30s
+ 
+ OUTBOX_POLL_INTERVAL=500ms
+ WORKER_COUNT=4
++# Optional per-process cap for one target; 0 disables, otherwise <= WORKER_COUNT.
++# Saturated work is durably deferred without consuming an HTTP attempt.
++WORKER_TARGET_CONCURRENCY=0
++# DESTRUCTIVE when enabled: deletes old successful/canceled events and history.
++# Ends their audit and ingestion-idempotency window. Back up before opting in.
++HISTORY_RETENTION_AGE=0s
++HISTORY_RETENTION_INTERVAL=1h
++HISTORY_RETENTION_BATCH=100
+ # Optional admission-control bound (DECISIONS.md #28): reject new events
+ # with 429 once this many non-terminal, non-DLQ rows exist durably.
+ # 0 disables the limit (default: current behavior).
+diff --git a/cmd/server/main.go b/cmd/server/main.go
+index 792b678..11fad9a 100644
+--- a/cmd/server/main.go
++++ b/cmd/server/main.go
+@@ -107,6 +107,7 @@ func run(logger *slog.Logger) error {
+ 	}
+ 	scheduler := retry.NewScheduler(eventStore, logger)
+ 	start(func() { scheduler.Run(appCtx, cfg.OutboxPollInterval) })
++	start(func() { runRetention(appCtx, eventStore, cfg, metrics, logger) })
+ 
+ 	circuitCfg := worker.CircuitConfig{
+ 		FailureThreshold: cfg.CircuitFailureThreshold,
+@@ -114,7 +115,7 @@ func run(logger *slog.Logger) error {
+ 	}
+ 	deliveryClient := delivery.NewClient(cfg.DeliveryConnectTimeout, cfg.DeliveryRequestTimeout, cfg.ResponseCaptureMaxBytes, cfg.AllowPrivateTargets, secretBox)
+ 	pool := worker.NewPool(eventStore, targetStore, redisClient, deliveryClient, retryPolicy, circuitCfg, cfg.RedisStream, cfg.RedisConsumerGroup, logger, metrics)
+-	start(func() { pool.Run(appCtx, cfg.WorkerCount) })
++	start(func() { pool.Run(appCtx, cfg.WorkerCount, cfg.WorkerTargetConcurrency) })
+ 
+ 	serverErr := make(chan error, 1)
+ 	go func() {
+diff --git a/internal/config/config.go b/internal/config/config.go
+index a3b1a9a..865b2e6 100644
+--- a/internal/config/config.go
++++ b/internal/config/config.go
+@@ -34,8 +34,12 @@ type Config struct {
+ 
+ 	AllowPrivateTargets bool
+ 
+-	OutboxPollInterval time.Duration
+-	WorkerCount        int
++	OutboxPollInterval       time.Duration
++	WorkerCount              int
++	WorkerTargetConcurrency  int
++	HistoryRetentionAge      time.Duration
++	HistoryRetentionInterval time.Duration
++	HistoryRetentionBatch    int
+ 
+ 	// EventsMaxPending is the admission-control bound on durable pending
+ 	// event rows (EVENTS_MAX_PENDING_EVENTS). 0 disables the limit, which
+@@ -107,9 +111,24 @@ func Load() (Config, error) {
+ 	if cfg.WorkerCount, err = getEnvInt("WORKER_COUNT", 4); err != nil {
+ 		return Config{}, err
+ 	}
++	if cfg.WorkerTargetConcurrency, err = getEnvInt("WORKER_TARGET_CONCURRENCY", 0); err != nil {
++		return Config{}, err
++	}
+ 	if cfg.EventsMaxPending, err = getEnvInt("EVENTS_MAX_PENDING_EVENTS", 0); err != nil {
+ 		return Config{}, err
+ 	}
++	if cfg.HistoryRetentionAge, err = getEnvDuration("HISTORY_RETENTION_AGE", 0); err != nil {
++		return Config{}, err
++	}
++	if cfg.HistoryRetentionInterval, err = getEnvDuration("HISTORY_RETENTION_INTERVAL", time.Hour); err != nil {
++		return Config{}, err
++	}
++	if cfg.HistoryRetentionBatch, err = getEnvInt("HISTORY_RETENTION_BATCH", 100); err != nil {
++		return Config{}, err
++	}
++	if cfg.HistoryRetentionAge < 0 || (cfg.HistoryRetentionAge > 0 && cfg.HistoryRetentionAge < 24*time.Hour) || cfg.HistoryRetentionInterval < time.Minute || cfg.HistoryRetentionBatch < 1 || cfg.HistoryRetentionBatch > 1000 {
++		return Config{}, fmt.Errorf("retention requires age 0 or >=24h, interval >=1m and batch 1..1000")
++	}
+ 
+ 	if cfg.AppEnv != "development" && !cfg.AuthEnabled {
+ 		return Config{}, fmt.Errorf("AUTH_ENABLED must be true outside development")
+@@ -135,6 +154,9 @@ func Load() (Config, error) {
+ 	if cfg.WorkerCount <= 0 || cfg.OutboxPollInterval <= 0 || cfg.DeliveryMaxAttempts <= 0 || cfg.DeliveryMaxAttempts > 100 {
+ 		return Config{}, fmt.Errorf("worker count and poll interval must be positive; max attempts must be between 1 and 100")
+ 	}
++	if cfg.WorkerTargetConcurrency < 0 || cfg.WorkerTargetConcurrency > cfg.WorkerCount {
++		return Config{}, fmt.Errorf("WORKER_TARGET_CONCURRENCY must be between 0 and WORKER_COUNT")
++	}
+ 	if cfg.DeliveryBaseBackoff < 0 || cfg.DeliveryMaxBackoff <= 0 || cfg.DeliveryBaseBackoff > cfg.DeliveryMaxBackoff {
+ 		return Config{}, fmt.Errorf("retry backoff must satisfy 0 <= base <= max and max > 0")
+ 	}
+diff --git a/internal/config/config_test.go b/internal/config/config_test.go
+index 89af178..473a487 100644
+--- a/internal/config/config_test.go
++++ b/internal/config/config_test.go
+@@ -1,6 +1,9 @@
+ package config
+ 
+-import "testing"
++import (
++	"fmt"
++	"testing"
++)
+ 
+ // testEncryptionKey is a base64-encoded 32-byte key used only in tests.
+ const testEncryptionKey = "a2tra2tra2tra2tra2tra2tra2tra2tra2tra2tra2s="
+@@ -88,10 +91,13 @@ func TestLoad_RejectsUnsafeRuntimeConfiguration(t *testing.T) {
+ 	for _, tc := range []struct{ key, value string }{
+ 		{"AUTH_ENABLED", "perhaps"}, {"ALLOW_PRIVATE_TARGETS", "yesplease"},
+ 		{"WORKER_COUNT", "0"}, {"OUTBOX_POLL_INTERVAL", "0s"},
++		{"WORKER_TARGET_CONCURRENCY", "-1"}, {"WORKER_TARGET_CONCURRENCY", "5"}, {"WORKER_TARGET_CONCURRENCY", "invalid"},
+ 		{"DELIVERY_MAX_ATTEMPTS", "0"}, {"DELIVERY_MAX_ATTEMPTS", "101"},
+ 		{"DELIVERY_BASE_BACKOFF", "-1s"}, {"DELIVERY_MAX_BACKOFF", "0s"},
+ 		{"CIRCUIT_FAILURE_THRESHOLD", "0"}, {"CIRCUIT_OPEN_COOLDOWN", "0s"},
+ 		{"DELIVERY_REQUEST_TIMEOUT", "2m"},
++		{"HISTORY_RETENTION_AGE", "-1s"}, {"HISTORY_RETENTION_AGE", "23h"}, {"HISTORY_RETENTION_AGE", "invalid"},
++		{"HISTORY_RETENTION_INTERVAL", "1s"}, {"HISTORY_RETENTION_BATCH", "0"}, {"HISTORY_RETENTION_BATCH", "1001"},
+ 	} {
+ 		t.Run(tc.key+tc.value, func(t *testing.T) {
+ 			t.Setenv("APP_ENV", "development")
+@@ -106,6 +112,23 @@ func TestLoad_RejectsUnsafeRuntimeConfiguration(t *testing.T) {
+ 	}
+ }
+ 
++func TestLoad_TargetConcurrency(t *testing.T) {
++	t.Setenv("APP_ENV", "development")
++	t.Setenv("AUTH_ENABLED", "false")
++	t.Setenv("WORKER_COUNT", "4")
++	t.Setenv("SECRET_ENCRYPTION_KEY", testEncryptionKey)
++	for _, value := range []string{"0", "2", "4"} {
++		t.Setenv("WORKER_TARGET_CONCURRENCY", value)
++		cfg, err := Load()
++		if err != nil {
++			t.Fatal(err)
++		}
++		if fmt.Sprint(cfg.WorkerTargetConcurrency) != value {
++			t.Fatalf("cap=%d want %s", cfg.WorkerTargetConcurrency, value)
++		}
++	}
++}
++
+ func TestLoad_RejectsPrivateTargetsOutsideDevelopment(t *testing.T) {
+ 	t.Setenv("APP_ENV", "production")
+ 	t.Setenv("AUTH_ENABLED", "true")
+diff --git a/internal/observability/metrics.go b/internal/observability/metrics.go
+index 606bfad..87dccf6 100644
+--- a/internal/observability/metrics.go
++++ b/internal/observability/metrics.go
+@@ -46,6 +46,9 @@ type Metrics struct {
+ 	deliveryFailure  atomic.Uint64
+ 	deliveryRetries  atomic.Uint64
+ 	deliveryDLQ      atomic.Uint64
++	targetDeferrals  atomic.Uint64
++	historyPruned    atomic.Uint64
++	historyErrors    atomic.Uint64
+ 
+ 	queueDepth     atomic.Int64
+ 	outboxPending  atomic.Int64
+@@ -70,6 +73,10 @@ type Metrics struct {
+ 
+ func NewMetrics() *Metrics { return &Metrics{} }
+ 
++func (m *Metrics) TargetCapacityDeferred() { m.targetDeferrals.Add(1) }
++func (m *Metrics) HistoryPruned(n uint64)  { m.historyPruned.Add(n) }
++func (m *Metrics) HistoryCleanupFailed()   { m.historyErrors.Add(1) }
++
+ func (m *Metrics) EventCreated()                   { m.eventsCreated.Add(1) }
+ func (m *Metrics) EventRejected()                  { m.eventsRejected.Add(1) }
+ func (m *Metrics) ObserveAPI(d time.Duration)      { m.apiDuration.observe(d) }
+@@ -138,6 +145,9 @@ func (m *Metrics) Handler(w http.ResponseWriter, _ *http.Request) {
+ 	writeHistogram(w, "webhook_delivery_duration_seconds", &m.deliveryDuration)
+ 	writeCounter(w, "webhook_delivery_retries_total", m.deliveryRetries.Load())
+ 	writeCounter(w, "webhook_delivery_dlq_total", m.deliveryDLQ.Load())
++	writeCounter(w, "webhook_target_capacity_deferrals_total", m.targetDeferrals.Load())
++	writeCounter(w, "webhook_history_events_pruned_total", m.historyPruned.Load())
++	writeCounter(w, "webhook_history_cleanup_errors_total", m.historyErrors.Load())
+ 	writeGauge(w, "webhook_queue_depth", m.queueDepth.Load())
+ 	writeGauge(w, "webhook_queue_unread", m.queueUnread.Load())
+ 	writeGauge(w, "webhook_events_pending", m.durablePending.Load())
+diff --git a/internal/observability/metrics_test.go b/internal/observability/metrics_test.go
+index edc119f..201ee28 100644
+--- a/internal/observability/metrics_test.go
++++ b/internal/observability/metrics_test.go
+@@ -13,6 +13,9 @@ import (
+ func TestMetricsHandler_ExposesPrometheusCountersGaugesAndHistograms(t *testing.T) {
+ 	m := NewMetrics()
+ 	m.EventCreated()
++	m.TargetCapacityDeferred()
++	m.HistoryPruned(3)
++	m.HistoryCleanupFailed()
+ 	m.EventRejected()
+ 	m.SetQueueDepth(3)
+ 	m.SetOutboxPending(2)
+@@ -32,6 +35,9 @@ func TestMetricsHandler_ExposesPrometheusCountersGaugesAndHistograms(t *testing.
+ 
+ 	for _, want := range []string{
+ 		"webhook_events_created_total 1",
++		"webhook_target_capacity_deferrals_total 1",
++		"webhook_history_events_pruned_total 3",
++		"webhook_history_cleanup_errors_total 1",
+ 		"webhook_events_rejected_total 1",
+ 		"webhook_queue_depth 3",
+ 		"webhook_queue_unread 4",
+diff --git a/internal/outbox/retry_recovery_test.go b/internal/outbox/retry_recovery_test.go
+index e149a3d..952497c 100644
+--- a/internal/outbox/retry_recovery_test.go
++++ b/internal/outbox/retry_recovery_test.go
+@@ -114,7 +114,7 @@ func TestRelay_RetrySurvivesSchedulerExitPublishFailureAndDuplicatePublication(t
+ 		stream, group, logger, metrics)
+ 	workCtx, cancel := context.WithCancel(ctx)
+ 	done := make(chan struct{})
+-	go func() { defer close(done); pool.Run(workCtx, 1) }()
++	go func() { defer close(done); pool.Run(workCtx, 1, 0) }()
+ 	t.Cleanup(func() {
+ 		cancel()
+ 		select {
+diff --git a/internal/worker/pool.go b/internal/worker/pool.go
+index a4e2543..9e00f1a 100644
+--- a/internal/worker/pool.go
++++ b/internal/worker/pool.go
+@@ -8,6 +8,7 @@ import (
+ 	"errors"
+ 	"fmt"
+ 	"log/slog"
++	"math/rand/v2"
+ 	"strings"
+ 	"sync"
+ 	"time"
+@@ -53,6 +54,9 @@ type Pool struct {
+ 	metrics       *observability.Metrics
+ 	reclaimCursor string
+ 	slots         chan struct{}
++	targetLimit   int
++	targetMu      sync.Mutex
++	targetActive  map[string]int
+ }
+ 
+ // CircuitConfig configures the per-target circuit breaker the pool checks
+@@ -76,7 +80,8 @@ func NewPool(
+ // Run starts workerCount goroutines consuming the stream's consumer group
+ // plus one reclaimer goroutine that recovers messages left pending by a
+ // crashed worker, and blocks until ctx is canceled and all have returned.
+-func (p *Pool) Run(ctx context.Context, workerCount int) {
++func (p *Pool) Run(ctx context.Context, workerCount, targetLimit int) {
++	p.targetLimit = targetLimit
+ 	p.slots = make(chan struct{}, workerCount)
+ 	var wg sync.WaitGroup
+ 	for i := 0; i < workerCount; i++ {
+@@ -321,6 +326,14 @@ func (p *Pool) handle(ctx context.Context, msg redis.XMessage, consumers ...stri
+ 	if !target.Enabled {
+ 		return p.events.CancelDelivery(ctx, eventID, token)
+ 	}
++	if !p.acquireTarget(target.ID) {
++		applied, err := p.events.DeferRetry(ctx, eventID, time.Now().Add(time.Second+time.Duration(rand.Int64N(int64(time.Second)))), token)
++		if err == nil && applied {
++			p.metrics.TargetCapacityDeferred()
++		}
++		return err
++	}
++	defer p.releaseTarget(target.ID)
+ 
+ 	allow, retryAt, generation, err := p.targets.CircuitAllow(ctx, target.ID, p.circuitCfg.OpenCooldown, processingTimeout+5*time.Second)
+ 	if err != nil {
+@@ -373,6 +386,35 @@ func (p *Pool) handle(ctx context.Context, msg redis.XMessage, consumers ...stri
+ 	return nil
+ }
+ 
++func (p *Pool) acquireTarget(id string) bool {
++	if p.targetLimit == 0 {
++		return true
++	}
++	p.targetMu.Lock()
++	defer p.targetMu.Unlock()
++	if p.targetActive[id] >= p.targetLimit {
++		return false
++	}
++	if p.targetActive == nil {
++		p.targetActive = make(map[string]int)
++	}
++	p.targetActive[id]++
++	return true
++}
++
++func (p *Pool) releaseTarget(id string) {
++	if p.targetLimit == 0 {
++		return
++	}
++	p.targetMu.Lock()
++	defer p.targetMu.Unlock()
++	if p.targetActive[id] <= 1 {
++		delete(p.targetActive, id)
++	} else {
++		p.targetActive[id]--
++	}
++}
++
+ func validEventID(id string) bool {
+ 	if len(id) != 36 {
+ 		return false
+diff --git a/internal/worker/transport_recovery_test.go b/internal/worker/transport_recovery_test.go
+index 6cc0310..923b405 100644
+--- a/internal/worker/transport_recovery_test.go
++++ b/internal/worker/transport_recovery_test.go
+@@ -129,7 +129,7 @@ func TestPool_RecoversLostTransportAndRecreatesGroup(t *testing.T) {
+ 	var wg sync.WaitGroup
+ 	defer func() { cancel(); wg.Wait() }()
+ 	wg.Add(2)
+-	go func() { defer wg.Done(); p.Run(workCtx, 1) }()
++	go func() { defer wg.Done(); p.Run(workCtx, 1, 0) }()
+ 	go func() {
+ 		defer wg.Done()
+ 		outbox.NewRelay(store.NewOutboxStore(db), rdb, stream, testLogger(), testMetrics()).Run(workCtx, 10*time.Millisecond)

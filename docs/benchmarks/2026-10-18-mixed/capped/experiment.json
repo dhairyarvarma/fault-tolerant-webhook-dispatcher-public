@@ -1,0 +1,164 @@
+{
+  "docker_host": {
+    "cpus": 20,
+    "memory_bytes": 8133451776,
+    "os": "Docker Desktop"
+  },
+  "commit": "06887da6635bc2d208e74b4dcd801456a3fc980c",
+  "docker": "29.8.0",
+  "finished_at": "2026-10-18T12:26:42.5139585Z",
+  "k6": "k6.exe v1.8.2 (go1.27.0, windows/amd64)",
+  "final_sql": [
+    {
+      "target_id": "42e249d4-3e43-4f11-a7e4-268ccced7b1b",
+      "status": "CANCELED",
+      "events": 55
+    },
+    {
+      "target_id": "42e249d4-3e43-4f11-a7e4-268ccced7b1b",
+      "status": "DLQ",
+      "events": 5
+    },
+    {
+      "target_id": "d222c805-769b-479b-83e1-745c40e9b19f",
+      "status": "SUCCEEDED",
+      "events": 453
+    },
+    {
+      "target_id": "fa6007b7-79d0-494e-a89c-874fa2281ebb",
+      "status": "SUCCEEDED",
+      "events": 300
+    }
+  ],
+  "cpu": [
+    {
+      "Name": "13th Gen Intel(R) Core(TM) i9-13900H",
+      "NumberOfCores": 14,
+      "NumberOfLogicalProcessors": 20
+    }
+  ],
+  "images": [
+    "[{\"ID\":\"sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea\",\"ContainerName\":\"mixed-20261018122246-b7f1fae8-postgres-1\",\"Repository\":\"postgres\",\"Tag\":\"16-alpine\",\"Platform\":\"linux/amd64\",\"Size\":419072015,\"Created\":\"2026-09-17T21:31:24.32976807Z\",\"LastTagTime\":\"2026-10-03T13:41:34.662503908Z\"},{\"ID\":\"sha256:311d08413d21cce03aa23003b3aa6d31e745df9f8c146c96fd79db16a958f1c6\",\"ContainerName\":\"mixed-20261018122246-b7f1fae8-target-simulator-1\",\"Repository\":\"webhook-targetsim\",\"Tag\":\"verify-mixed-20261018122246-b7f1fae8\",\"Platform\":\"linux/amd64\",\"Size\":38705763,\"Created\":\"2026-10-17T10:22:48.485640238Z\",\"LastTagTime\":\"2026-10-18T12:23:33.103194031Z\"},{\"ID\":\"sha256:1204d37040355ada7e6219bec3c6dc39763fee5af9b5763558fcf690e7713e77\",\"ContainerName\":\"mixed-20261018122246-b7f1fae8-api-1\",\"Repository\":\"webhook-dispatcher\",\"Tag\":\"verify-mixed-20261018122246-b7f1fae8\",\"Platform\":\"linux/amd64\",\"Size\":53151843,\"Created\":\"2026-10-18T12:23:47.805182209Z\",\"LastTagTime\":\"2026-10-18T12:23:49.84987817Z\"},{\"ID\":\"sha256:858f009f9709ce576febc734aa78b8f6d624b82571f9ddb6bda4377c833b3499\",\"ContainerName\":\"mixed-20261018122246-b7f1fae8-redis-1\",\"Repository\":\"redis\",\"Tag\":\"7-alpine\",\"Platform\":\"linux/amd64\",\"Size\":57300241,\"Created\":\"2026-09-17T21:32:46.989770417Z\",\"LastTagTime\":\"2026-10-16T03:20:03.528274168Z\"}]",
+    ""
+  ],
+  "dirty": true,
+  "run": "mixed-20261018122246-b7f1fae8",
+  "target_concurrency": 2,
+  "status": "measured",
+  "seconds": 30,
+  "go": "go version go1.27.2 windows/amd64",
+  "results": [
+    {
+      "delivery": {
+        "accepted": 151,
+        "succeeded": 151,
+        "dlq": 0,
+        "pending": 0,
+        "canceled": 0,
+        "success_latency_p50_seconds": 0.069078,
+        "success_latency_p95_seconds": 0.073519,
+        "success_latency_p99_seconds": 0.076248
+      },
+      "exit_code": 0,
+      "target": "d222c805-769b-479b-83e1-745c40e9b19f",
+      "verification": "verified",
+      "phase": "before",
+      "rate": 5,
+      "artifact": "before-healthy\\20261018T122410.536813200Z",
+      "api_p95_ms": 37.3335,
+      "kind": "healthy",
+      "load_started_at": "2026-10-18T12:24:10.8537041Z",
+      "load_finished_at": "2026-10-18T12:24:41.151304Z"
+    },
+    {
+      "delivery": {
+        "accepted": 151,
+        "succeeded": 151,
+        "dlq": 0,
+        "pending": 0,
+        "canceled": 0,
+        "success_latency_p50_seconds": 0.107077,
+        "success_latency_p95_seconds": 0.2652845,
+        "success_latency_p99_seconds": 0.36268900000000004
+      },
+      "exit_code": 0,
+      "target": "d222c805-769b-479b-83e1-745c40e9b19f",
+      "verification": "verified",
+      "phase": "mixed",
+      "rate": 5,
+      "artifact": "mixed-healthy\\20261018T122441.599505400Z",
+      "api_p95_ms": 13.1646,
+      "kind": "healthy",
+      "load_started_at": "2026-10-18T12:24:41.9042639Z",
+      "load_finished_at": "2026-10-18T12:25:12.1170286Z"
+    },
+    {
+      "delivery": {
+        "accepted": 300,
+        "succeeded": 300,
+        "dlq": 0,
+        "pending": 0,
+        "canceled": 0,
+        "success_latency_p50_seconds": 23.138132,
+        "success_latency_p95_seconds": 65.45928930000001,
+        "success_latency_p99_seconds": 74.56144295
+      },
+      "exit_code": 0,
+      "target": "fa6007b7-79d0-494e-a89c-874fa2281ebb",
+      "verification": "verified",
+      "phase": "mixed",
+      "rate": 10,
+      "artifact": "mixed-slow\\20261018T122441.642952500Z",
+      "api_p95_ms": 16.79568500000005,
+      "kind": "slow",
+      "load_started_at": "2026-10-18T12:24:41.9218908Z",
+      "load_finished_at": "2026-10-18T12:25:12.1333998Z"
+    },
+    {
+      "delivery": {
+        "accepted": 60,
+        "succeeded": 0,
+        "dlq": 2,
+        "pending": 58,
+        "canceled": 0,
+        "success_latency_p50_seconds": null,
+        "success_latency_p95_seconds": null,
+        "success_latency_p99_seconds": null
+      },
+      "exit_code": 1,
+      "target": "42e249d4-3e43-4f11-a7e4-268ccced7b1b",
+      "verification": "drain_timeout",
+      "phase": "mixed",
+      "rate": 2,
+      "artifact": "mixed-failing\\20261018T122441.725832400Z",
+      "api_p95_ms": 20.54814499999996,
+      "kind": "failing",
+      "load_started_at": "2026-10-18T12:24:41.9832648Z",
+      "load_finished_at": "2026-10-18T12:25:12.1825995Z"
+    },
+    {
+      "delivery": {
+        "accepted": 151,
+        "succeeded": 151,
+        "dlq": 0,
+        "pending": 0,
+        "canceled": 0,
+        "success_latency_p50_seconds": 0.095548,
+        "success_latency_p95_seconds": 0.100778,
+        "success_latency_p99_seconds": 0.113941
+      },
+      "exit_code": 0,
+      "target": "d222c805-769b-479b-83e1-745c40e9b19f",
+      "verification": "verified",
+      "phase": "after",
+      "rate": 5,
+      "artifact": "after-healthy\\20261018T122611.199352400Z",
+      "api_p95_ms": 36.3448,
+      "kind": "healthy",
+      "load_started_at": "2026-10-18T12:26:11.4730274Z",
+      "load_finished_at": "2026-10-18T12:26:41.6793898Z"
+    }
+  ],
+  "started_at": "2026-10-18T12:22:46.5880877Z",
+  "os": "Microsoft Windows 10.0.26200"
+}

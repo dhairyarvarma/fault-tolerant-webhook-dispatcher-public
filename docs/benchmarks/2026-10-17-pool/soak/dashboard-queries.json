@@ -1,0 +1,350 @@
+[
+  {
+    "at": "2026-10-17T10:11:08.6818136Z",
+    "panel": "Event ingestion rate",
+    "expression": "rate(webhook_events_created_total[5m])",
+    "response": {
+      "status": "success",
+      "data": {
+        "resultType": "vector",
+        "result": [
+          {
+            "metric": {
+              "instance": "api:8080",
+              "job": "webhook-dispatcher"
+            },
+            "value": [
+              1792231868.519,
+              "24.99966097557668"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "at": "2026-10-17T10:11:08.7124275Z",
+    "panel": "Delivery outcomes",
+    "expression": "rate(webhook_delivery_success_total[5m])",
+    "response": {
+      "status": "success",
+      "data": {
+        "resultType": "vector",
+        "result": [
+          {
+            "metric": {
+              "instance": "api:8080",
+              "job": "webhook-dispatcher"
+            },
+            "value": [
+              1792231868.696,
+              "24.99966097557668"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "at": "2026-10-17T10:11:08.7298727Z",
+    "panel": "Delivery outcomes",
+    "expression": "rate(webhook_delivery_failure_total[5m])",
+    "response": {
+      "status": "success",
+      "data": {
+        "resultType": "vector",
+        "result": [
+          {
+            "metric": {
+              "instance": "api:8080",
+              "job": "webhook-dispatcher"
+            },
+            "value": [
+              1792231868.72,
+              "0"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "at": "2026-10-17T10:11:08.7450015Z",
+    "panel": "Delivery outcomes",
+    "expression": "rate(webhook_delivery_retries_total[5m])",
+    "response": {
+      "status": "success",
+      "data": {
+        "resultType": "vector",
+        "result": [
+          {
+            "metric": {
+              "instance": "api:8080",
+              "job": "webhook-dispatcher"
+            },
+            "value": [
+              1792231868.736,
+              "0"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "at": "2026-10-17T10:11:08.7576095Z",
+    "panel": "Queue pressure",
+    "expression": "webhook_outbox_pending",
+    "response": {
+      "status": "success",
+      "data": {
+        "resultType": "vector",
+        "result": [
+          {
+            "metric": {
+              "__name__": "webhook_outbox_pending",
+              "instance": "api:8080",
+              "job": "webhook-dispatcher"
+            },
+            "value": [
+              1792231868.75,
+              "3"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "at": "2026-10-17T10:11:08.7679802Z",
+    "panel": "Queue pressure",
+    "expression": "webhook_queue_depth",
+    "response": {
+      "status": "success",
+      "data": {
+        "resultType": "vector",
+        "result": [
+          {
+            "metric": {
+              "__name__": "webhook_queue_depth",
+              "instance": "api:8080",
+              "job": "webhook-dispatcher"
+            },
+            "value": [
+              1792231868.76,
+              "0"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "at": "2026-10-17T10:11:08.7836882Z",
+    "panel": "Queue pressure",
+    "expression": "webhook_queue_unread",
+    "response": {
+      "status": "success",
+      "data": {
+        "resultType": "vector",
+        "result": [
+          {
+            "metric": {
+              "__name__": "webhook_queue_unread",
+              "instance": "api:8080",
+              "job": "webhook-dispatcher"
+            },
+            "value": [
+              1792231868.771,
+              "0"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "at": "2026-10-17T10:11:08.792908Z",
+    "panel": "Queue pressure",
+    "expression": "webhook_events_pending",
+    "response": {
+      "status": "success",
+      "data": {
+        "resultType": "vector",
+        "result": [
+          {
+            "metric": {
+              "__name__": "webhook_events_pending",
+              "instance": "api:8080",
+              "job": "webhook-dispatcher"
+            },
+            "value": [
+              1792231868.787,
+              "2"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "at": "2026-10-17T10:11:08.8023984Z",
+    "panel": "Resilience state",
+    "expression": "webhook_worker_active",
+    "response": {
+      "status": "success",
+      "data": {
+        "resultType": "vector",
+        "result": [
+          {
+            "metric": {
+              "__name__": "webhook_worker_active",
+              "instance": "api:8080",
+              "job": "webhook-dispatcher"
+            },
+            "value": [
+              1792231868.796,
+              "4"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "at": "2026-10-17T10:11:08.811993Z",
+    "panel": "Resilience state",
+    "expression": "rate(webhook_circuit_open_total[5m])",
+    "response": {
+      "status": "success",
+      "data": {
+        "resultType": "vector",
+        "result": [
+          {
+            "metric": {
+              "instance": "api:8080",
+              "job": "webhook-dispatcher"
+            },
+            "value": [
+              1792231868.805,
+              "0"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "at": "2026-10-17T10:11:08.8256986Z",
+    "panel": "Resilience state",
+    "expression": "webhook_circuit_state{state=\"OPEN\"}",
+    "response": {
+      "status": "success",
+      "data": {
+        "resultType": "vector",
+        "result": [
+          {
+            "metric": {
+              "__name__": "webhook_circuit_state",
+              "instance": "api:8080",
+              "job": "webhook-dispatcher",
+              "state": "OPEN"
+            },
+            "value": [
+              1792231868.816,
+              "0"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "at": "2026-10-17T10:11:08.8369758Z",
+    "panel": "Resilience state",
+    "expression": "webhook_events_dlq",
+    "response": {
+      "status": "success",
+      "data": {
+        "resultType": "vector",
+        "result": [
+          {
+            "metric": {
+              "__name__": "webhook_events_dlq",
+              "instance": "api:8080",
+              "job": "webhook-dispatcher"
+            },
+            "value": [
+              1792231868.83,
+              "0"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "at": "2026-10-17T10:11:08.8462888Z",
+    "panel": "Resilience state",
+    "expression": "webhook_delivery_in_flight",
+    "response": {
+      "status": "success",
+      "data": {
+        "resultType": "vector",
+        "result": [
+          {
+            "metric": {
+              "__name__": "webhook_delivery_in_flight",
+              "instance": "api:8080",
+              "job": "webhook-dispatcher"
+            },
+            "value": [
+              1792231868.84,
+              "0"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "at": "2026-10-17T10:11:08.8656504Z",
+    "panel": "Observed request latency (not end-to-end delivery latency)",
+    "expression": "histogram_quantile(0.95, sum by (le) (rate(webhook_api_request_duration_seconds_bucket[5m])))",
+    "response": {
+      "status": "success",
+      "data": {
+        "resultType": "vector",
+        "result": [
+          {
+            "metric": {},
+            "value": [
+              1792231868.849,
+              "0.023077212806026266"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "at": "2026-10-17T10:11:08.8741272Z",
+    "panel": "Observed request latency (not end-to-end delivery latency)",
+    "expression": "histogram_quantile(0.95, sum by (le) (rate(webhook_delivery_duration_seconds_bucket[5m])))",
+    "response": {
+      "status": "success",
+      "data": {
+        "resultType": "vector",
+        "result": [
+          {
+            "metric": {},
+            "value": [
+              1792231868.868,
+              "0.009500000000000001"
+            ]
+          }
+        ]
+      }
+    }
+  }
+]

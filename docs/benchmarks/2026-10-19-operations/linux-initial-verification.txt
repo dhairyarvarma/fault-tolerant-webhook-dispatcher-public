@@ -1,0 +1,35 @@
+go: downloading github.com/jackc/pgx/v5 v5.11.0
+go: downloading github.com/redis/go-redis/v9 v9.23.0
+go: downloading github.com/jackc/puddle/v2 v2.2.2
+go: downloading github.com/jackc/pgservicefile v0.0.0-20240606120523-5a60cdf6a761
+go: downloading golang.org/x/text v0.41.0
+go: downloading github.com/jackc/pgpassfile v1.0.0
+go: downloading golang.org/x/sync v0.22.0
+go: downloading golang.org/x/sys v0.48.0
+go: downloading go.uber.org/atomic v1.12.0
+go: downloading github.com/cespare/xxhash/v2 v2.3.0
+?   	github.com/dhairyarajvarma/webhook-dispatcher/cmd/acceptance	[no test files]
+ok  	github.com/dhairyarajvarma/webhook-dispatcher/cmd/benchmark	2.706s
+ok  	github.com/dhairyarajvarma/webhook-dispatcher/cmd/server	1.053s
+?   	github.com/dhairyarajvarma/webhook-dispatcher/cmd/targetsim	[no test files]
+?   	github.com/dhairyarajvarma/webhook-dispatcher/examples/receiver	[no test files]
+ok  	github.com/dhairyarajvarma/webhook-dispatcher/internal/api	18.345s
+ok  	github.com/dhairyarajvarma/webhook-dispatcher/internal/breaker	1.049s
+ok  	github.com/dhairyarajvarma/webhook-dispatcher/internal/config	1.058s
+ok  	github.com/dhairyarajvarma/webhook-dispatcher/internal/crypto	1.054s
+ok  	github.com/dhairyarajvarma/webhook-dispatcher/internal/delivery	1.384s
+ok  	github.com/dhairyarajvarma/webhook-dispatcher/internal/observability	1.188s
+ok  	github.com/dhairyarajvarma/webhook-dispatcher/internal/outbound	1.051s
+ok  	github.com/dhairyarajvarma/webhook-dispatcher/internal/outbox	6.032s
+ok  	github.com/dhairyarajvarma/webhook-dispatcher/internal/queue	1.054s
+ok  	github.com/dhairyarajvarma/webhook-dispatcher/internal/retry	3.618s
+?   	github.com/dhairyarajvarma/webhook-dispatcher/internal/service	[no test files]
+ok  	github.com/dhairyarajvarma/webhook-dispatcher/internal/signature	1.039s
+ok  	github.com/dhairyarajvarma/webhook-dispatcher/internal/store	23.604s
+ok  	github.com/dhairyarajvarma/webhook-dispatcher/internal/targetsim	1.386s
+?   	github.com/dhairyarajvarma/webhook-dispatcher/internal/testutil	[no test files]
+ok  	github.com/dhairyarajvarma/webhook-dispatcher/internal/worker	17.754s
+ok  	github.com/dhairyarajvarma/webhook-dispatcher/test/e2e	1.054s
+# github.com/dhairyarajvarma/webhook-dispatcher/cmd/server
+# [github.com/dhairyarajvarma/webhook-dispatcher/cmd/server]
+vet: cmd/server/retention_test.go:7:2: could not import net/http/httptest (can't resolve import "")

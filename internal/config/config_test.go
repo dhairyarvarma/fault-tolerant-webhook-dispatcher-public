@@ -1,0 +1,157 @@
+package config
+
+import (
+	"fmt"
+	"testing"
+)
+
+// testEncryptionKey is a base64-encoded 32-byte key used only in tests.
+const testEncryptionKey = "a2tra2tra2tra2tra2tra2tra2tra2tra2tra2tra2s="
+
+func TestLoad_Defaults(t *testing.T) {
+	t.Setenv("APP_ENV", "development")
+	t.Setenv("AUTH_ENABLED", "")
+	t.Setenv("API_KEY", "")
+	t.Setenv("SECRET_ENCRYPTION_KEY", testEncryptionKey)
+
+	cfg, err := Load()
+	if err != nil {
+		t.Fatalf("Load() returned error: %v", err)
+	}
+
+	if cfg.HTTPAddr != ":8080" {
+		t.Errorf("HTTPAddr = %q, want :8080", cfg.HTTPAddr)
+	}
+	if cfg.DeliveryMaxAttempts != 5 {
+		t.Errorf("DeliveryMaxAttempts = %d, want 5", cfg.DeliveryMaxAttempts)
+	}
+	if cfg.CircuitFailureThreshold != 5 {
+		t.Errorf("CircuitFailureThreshold = %d, want 5", cfg.CircuitFailureThreshold)
+	}
+}
+
+func TestLoad_AuthEnabledRequiresAPIKey(t *testing.T) {
+	t.Setenv("APP_ENV", "development")
+	t.Setenv("AUTH_ENABLED", "true")
+	t.Setenv("API_KEY", "")
+
+	if _, err := Load(); err == nil {
+		t.Fatal("expected error when AUTH_ENABLED=true and API_KEY is empty")
+	}
+}
+
+func TestLoad_InvalidDuration(t *testing.T) {
+	t.Setenv("APP_ENV", "development")
+	t.Setenv("DELIVERY_REQUEST_TIMEOUT", "not-a-duration")
+
+	if _, err := Load(); err == nil {
+		t.Fatal("expected error for invalid DELIVERY_REQUEST_TIMEOUT")
+	}
+}
+
+func TestLoad_MissingSecretEncryptionKey(t *testing.T) {
+	t.Setenv("APP_ENV", "development")
+	t.Setenv("SECRET_ENCRYPTION_KEY", "")
+
+	if _, err := Load(); err == nil {
+		t.Fatal("expected error when SECRET_ENCRYPTION_KEY is empty")
+	}
+}
+
+func TestLoad_InvalidSecretEncryptionKeyLength(t *testing.T) {
+	t.Setenv("APP_ENV", "development")
+	t.Setenv("SECRET_ENCRYPTION_KEY", "dG9vc2hvcnQ=") // "tooshort", not 32 bytes
+
+	if _, err := Load(); err == nil {
+		t.Fatal("expected error for SECRET_ENCRYPTION_KEY not decoding to 32 bytes")
+	}
+}
+
+func TestLoad_NonDevelopmentRequiresAuthentication(t *testing.T) {
+	t.Setenv("APP_ENV", "production")
+	t.Setenv("AUTH_ENABLED", "false")
+	t.Setenv("SECRET_ENCRYPTION_KEY", testEncryptionKey)
+
+	if _, err := Load(); err == nil {
+		t.Fatal("expected error when authentication is disabled outside development")
+	}
+}
+
+func TestLoad_RejectsNonPositivePayloadLimit(t *testing.T) {
+	t.Setenv("APP_ENV", "development")
+	t.Setenv("SECRET_ENCRYPTION_KEY", testEncryptionKey)
+	t.Setenv("PAYLOAD_MAX_BYTES", "0")
+
+	if _, err := Load(); err == nil {
+		t.Fatal("expected error for non-positive payload limit")
+	}
+}
+
+func TestLoad_RejectsUnsafeRuntimeConfiguration(t *testing.T) {
+	for _, tc := range []struct{ key, value string }{
+		{"AUTH_ENABLED", "perhaps"}, {"ALLOW_PRIVATE_TARGETS", "yesplease"},
+		{"WORKER_COUNT", "0"}, {"OUTBOX_POLL_INTERVAL", "0s"},
+		{"WORKER_TARGET_CONCURRENCY", "-1"}, {"WORKER_TARGET_CONCURRENCY", "5"}, {"WORKER_TARGET_CONCURRENCY", "invalid"},
+		{"DELIVERY_MAX_ATTEMPTS", "0"}, {"DELIVERY_MAX_ATTEMPTS", "101"},
+		{"DELIVERY_BASE_BACKOFF", "-1s"}, {"DELIVERY_MAX_BACKOFF", "0s"},
+		{"CIRCUIT_FAILURE_THRESHOLD", "0"}, {"CIRCUIT_OPEN_COOLDOWN", "0s"},
+		{"DELIVERY_REQUEST_TIMEOUT", "2m"},
+		{"HISTORY_RETENTION_AGE", "-1s"}, {"HISTORY_RETENTION_AGE", "23h"}, {"HISTORY_RETENTION_AGE", "invalid"},
+		{"HISTORY_RETENTION_INTERVAL", "0s"}, {"HISTORY_RETENTION_BATCH", "0"}, {"HISTORY_RETENTION_BATCH", "1001"},
+	} {
+		t.Run(tc.key+tc.value, func(t *testing.T) {
+			t.Setenv("APP_ENV", "development")
+			t.Setenv("AUTH_ENABLED", "false")
+			t.Setenv("ALLOW_PRIVATE_TARGETS", "false")
+			t.Setenv("SECRET_ENCRYPTION_KEY", testEncryptionKey)
+			t.Setenv(tc.key, tc.value)
+			if _, err := Load(); err == nil {
+				t.Fatal("unsafe configuration accepted")
+			}
+		})
+	}
+}
+
+func TestLoad_TargetConcurrency(t *testing.T) {
+	t.Setenv("APP_ENV", "development")
+	t.Setenv("AUTH_ENABLED", "false")
+	t.Setenv("WORKER_COUNT", "4")
+	t.Setenv("SECRET_ENCRYPTION_KEY", testEncryptionKey)
+	for _, value := range []string{"0", "2", "4"} {
+		t.Setenv("WORKER_TARGET_CONCURRENCY", value)
+		cfg, err := Load()
+		if err != nil {
+			t.Fatal(err)
+		}
+		if fmt.Sprint(cfg.WorkerTargetConcurrency) != value {
+			t.Fatalf("cap=%d want %s", cfg.WorkerTargetConcurrency, value)
+		}
+	}
+}
+
+func TestLoad_RetentionWindow(t *testing.T) {
+	t.Setenv("APP_ENV", "development")
+	t.Setenv("AUTH_ENABLED", "false")
+	t.Setenv("SECRET_ENCRYPTION_KEY", testEncryptionKey)
+	t.Setenv("HISTORY_RETENTION_AGE", "720h")
+	t.Setenv("HISTORY_RETENTION_INTERVAL", "1s")
+	t.Setenv("HISTORY_RETENTION_BATCH", "1000")
+	cfg, err := Load()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if cfg.HistoryRetentionAge.Hours() != 720 || cfg.HistoryRetentionInterval.Seconds() != 1 || cfg.HistoryRetentionBatch != 1000 {
+		t.Fatalf("unexpected retention settings")
+	}
+}
+
+func TestLoad_RejectsPrivateTargetsOutsideDevelopment(t *testing.T) {
+	t.Setenv("APP_ENV", "production")
+	t.Setenv("AUTH_ENABLED", "true")
+	t.Setenv("API_KEY", "test-production-only-key")
+	t.Setenv("ALLOW_PRIVATE_TARGETS", "true")
+	t.Setenv("SECRET_ENCRYPTION_KEY", testEncryptionKey)
+	if _, err := Load(); err == nil {
+		t.Fatal("private-target mode accepted in production")
+	}
+}

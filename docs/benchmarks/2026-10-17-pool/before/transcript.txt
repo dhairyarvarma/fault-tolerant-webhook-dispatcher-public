@@ -1,0 +1,167 @@
+**********************
+PowerShell transcript start
+Start time: 20261017151750
+Username: PUBLIC_HOST\PUBLIC_USER
+RunAs User: PUBLIC_HOST\PUBLIC_USER
+Configuration Name: 
+Machine: PUBLIC_HOST (Microsoft Windows NT 10.0.26200.0)
+Host Application: C:\Users\PUBLIC_USER\.cache\codex-runtimes\codex-primary-runtime\dependencies\native\powershell\pwsh.dll -Command try { [Console]::OutputEncoding=[System.Text.Encoding]::UTF8 } catch {}
+$env:GOCACHE=Join-Path (Get-Location) '.tmp/gocache'; $env:PATH=(Join-Path (Get-Location) '.tmp/tools')+';'+$env:PATH; ./scripts/verify-release.ps1 -Profile
+Process ID: 11036
+PSVersion: 7.6.5
+PSEdition: Core
+GitCommitId: 7.6.5
+OS: Microsoft Windows 10.0.26200
+Platform: Win32NT
+PSCompatibleVersions: 1.0, 2.0, 3.0, 4.0, 5.0, 5.1, 6.0, 7.0
+PSRemotingProtocolVersion: 2.4
+SerializationVersion: 1.1.0.1
+WSManStackVersion: 3.0
+**********************
+#1 [internal] load local bake definitions
+#1 reading from stdin 1.44kB done
+#1 DONE 0.0s
+
+#2 [target-simulator internal] load build definition from Dockerfile
+#2 transferring dockerfile: 379B 0.0s done
+#2 DONE 0.0s
+
+#3 [target-simulator internal] load metadata for docker.io/library/golang:1.27.2-alpine
+#3 DONE 0.1s
+
+#4 [api internal] load metadata for docker.io/library/alpine:3.20
+#4 DONE 1.3s
+
+#5 [api internal] load .dockerignore
+#5 transferring context: 122B 0.0s done
+#5 DONE 0.0s
+
+#6 [api internal] load build context
+#6 DONE 0.0s
+
+#7 [api stage-1 1/3] FROM docker.io/library/alpine:3.20@sha256:d9e853e87e55526f6b2917df91a2115c36dd7c696a35be12163d44e6e2a4b6bc
+#7 resolve docker.io/library/alpine:3.20@sha256:d9e853e87e55526f6b2917df91a2115c36dd7c696a35be12163d44e6e2a4b6bc 0.1s done
+#7 resolve docker.io/library/alpine:3.20@sha256:d9e853e87e55526f6b2917df91a2115c36dd7c696a35be12163d44e6e2a4b6bc 0.1s done
+#7 DONE 0.1s
+
+#8 [api build 1/6] FROM docker.io/library/golang:1.27.2-alpine@sha256:f92b6ef800e499660581efdabdf25d9d817a9d124eaf900924f0504e7e27e12d
+#8 resolve docker.io/library/golang:1.27.2-alpine@sha256:f92b6ef800e499660581efdabdf25d9d817a9d124eaf900924f0504e7e27e12d 0.1s done
+#8 DONE 0.1s
+
+#6 [api internal] load build context
+#6 transferring context: 15.41kB 0.1s done
+#6 DONE 0.1s
+
+#6 [target-simulator internal] load build context
+#6 DONE 0.1s
+
+#9 [target-simulator build 2/6] WORKDIR /src
+#9 CACHED
+
+#10 [target-simulator build 3/6] COPY go.mod go.sum ./
+#10 CACHED
+
+#11 [target-simulator build 4/6] RUN go mod download
+#11 CACHED
+
+#12 [target-simulator build 5/6] COPY . .
+#12 DONE 0.3s
+
+#12 [target-simulator build 5/6] COPY . .
+#12 DONE 0.3s
+
+#13 [target-simulator build 6/6] RUN CGO_ENABLED=0 go build -trimpath -o /out/app ./cmd/targetsim
+#13 ...
+
+#14 [api build 6/6] RUN CGO_ENABLED=0 go build -trimpath -o /out/app ./cmd/server
+#14 ...
+
+#13 [target-simulator build 6/6] RUN CGO_ENABLED=0 go build -trimpath -o /out/app ./cmd/targetsim
+#13 DONE 27.4s
+
+#15 [target-simulator stage-1 2/3] RUN apk add --no-cache ca-certificates
+#15 CACHED
+
+#16 [target-simulator stage-1 3/3] COPY --from=build /out/app /usr/local/bin/app
+#16 CACHED
+
+#17 [target-simulator] exporting to image
+#17 exporting layers done
+#17 exporting manifest sha256:6e61adfc109d44144ba6ed9f9ec2f7bd792e8d00c3c75799bfd7d837bf6dae4b 0.0s done
+#17 exporting config sha256:c5a6e6d114dcf110e248e68e98905554d8545eaff7558da5383b4444b4a989a4 0.0s done
+#17 exporting attestation manifest sha256:7a0b88a7f7232b65cb92ff95e1c4cd379cd9ec6616c79e80a98c5cd6b706ceaa 0.0s done
+#17 exporting manifest list sha256:2827f3b9b9acd76ff40d5fbdf36824bfef21522c5f846bddad50ae1329ad8547 0.0s done
+#17 naming to docker.io/library/webhook-targetsim:verify-verify-20261017094750-321472cf
+#17 naming to docker.io/library/webhook-targetsim:verify-verify-20261017094750-321472cf done
+#17 unpacking to docker.io/library/webhook-targetsim:verify-verify-20261017094750-321472cf 0.0s done
+#17 DONE 0.3s
+
+#14 [api build 6/6] RUN CGO_ENABLED=0 go build -trimpath -o /out/app ./cmd/server
+#14 ...
+
+#18 [target-simulator] resolving provenance for metadata file
+#18 DONE 0.1s
+
+#14 [api build 6/6] RUN CGO_ENABLED=0 go build -trimpath -o /out/app ./cmd/server
+#14 DONE 41.3s
+
+#15 [api stage-1 2/3] RUN apk add --no-cache ca-certificates
+#15 CACHED
+
+#19 [api stage-1 3/3] COPY --from=build /out/app /usr/local/bin/app
+#19 CACHED
+
+#20 [api] exporting to image
+#20 exporting layers done
+#20 exporting manifest sha256:976f8dfb32174b2ee4421ea812f90731c6ced7580b8a8244ba40c3dc09a64ce9 0.0s done
+#20 exporting config sha256:d49de8ca66f79c686d6886d19835bf48f675227919187bb902a97f6364c2bcbd 0.0s done
+#20 exporting attestation manifest sha256:2bf51c8c94c53ef08c3f29ac72391e93e0cb6902d397ff38f1a70d0d583e788a 0.0s done
+#20 exporting manifest list sha256:0961b9fb756d04b064785adc4299ef37312e82a212ca2469b0d92d8b2c873a03 0.0s done
+#20 naming to docker.io/library/webhook-dispatcher:verify-verify-20261017094750-321472cf done
+#20 unpacking to docker.io/library/webhook-dispatcher:verify-verify-20261017094750-321472cf 0.0s done
+#20 DONE 0.2s
+
+#21 [api] resolving provenance for metadata file
+#21 DONE 0.0s
+PASS: container startup, readiness, non-root and CA bundle
+=== RUN   TestE2E_DeliveryLifecycle
+--- PASS: TestE2E_DeliveryLifecycle (0.29s)
+=== RUN   TestE2E_IdempotencyConflict
+--- PASS: TestE2E_IdempotencyConflict (0.02s)
+=== RUN   TestE2E_ReplayNonDLQIsConflict
+--- PASS: TestE2E_ReplayNonDLQIsConflict (0.27s)
+=== RUN   TestE2E_DLQReplayRetainsHistory
+--- PASS: TestE2E_DLQReplayRetainsHistory (0.52s)
+=== RUN   TestE2E_DisabledTargetRejectsNewEvents
+--- PASS: TestE2E_DisabledTargetRejectsNewEvents (0.01s)
+=== RUN   TestE2E_AuthenticationAndHealth
+--- PASS: TestE2E_AuthenticationAndHealth (0.01s)
+=== RUN   TestE2E_ConcurrentIdempotencyCreatesOneLogicalEvent
+--- PASS: TestE2E_ConcurrentIdempotencyCreatesOneLogicalEvent (0.07s)
+=== RUN   TestE2E_SignedDeliveryPassesReceiverVerification
+    e2e_test.go:302: TEST_SIGNING_TARGET_URL required
+--- SKIP: TestE2E_SignedDeliveryPassesReceiverVerification (0.00s)
+=== RUN   TestE2E_Showcase
+    showcase_test.go:40: 1. Accept an event asynchronously and inspect its durable outcome.
+    showcase_test.go:44:    event=c9cae432-cf0e-41da-bf7a-d55492f391de -> SUCCEEDED
+    showcase_test.go:52: 2. Reusing the key returns 409 and the SAME event ID; no second logical event.
+    showcase_test.go:61: 3. event=63b592da-41f7-4b2d-9f17-8308cee35339 -> DLQ after 3 HTTP 500 attempts; circuit=OPEN.
+    showcase_test.go:67: 4. New event is deferred with ZERO attempts while the circuit is open.
+    showcase_test.go:70: 5. After cooldown, a successful probe closes the circuit; deferred event succeeds.
+    showcase_test.go:86: 6. Replay succeeds with the SAME event ID and all 4 historical attempts retained.
+    showcase_test.go:91: 7. Metrics are exposed. At-least-once delivery still permits duplicate HTTP after a crash.
+--- PASS: TestE2E_Showcase (6.78s)
+PASS
+ok  	github.com/dhairyarajvarma/webhook-dispatcher/test/e2e	11.065s
+PASS: container HTTP acceptance and narrated showcase
+PASS: live Prometheus scrape and Grafana dashboard provisioning
+PASS: backup/restore preserves all five table fingerprints and signing-key usability
+PASS: Redis restart: accepted durable work eventually succeeds
+PASS: SIGKILL after observed claim: durable event recovered
+
+
+PASS: load runs executed
+**********************
+PowerShell transcript end
+End time: 20261017152136
+**********************

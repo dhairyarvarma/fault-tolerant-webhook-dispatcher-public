@@ -1,0 +1,44 @@
+import http from 'k6/http';
+import { check } from 'k6';
+
+// Sustained soak: constant arrival rate for a long duration, aimed at
+// surfacing unbounded growth (memory, pending rows, queue depth) rather
+// than peak throughput. Run with the limit enabled against a normal
+// target; results belong in RESUME_EVIDENCE.md only after a real run.
+const baseURL = __ENV.BASE_URL || 'http://localhost:8080';
+const targetID = __ENV.TARGET_ID;
+
+if (!targetID) {
+  throw new Error('TARGET_ID is required');
+}
+
+export const options = {
+  thresholds: { checks: ['rate==1'], http_req_failed: ['rate==0'], dropped_iterations: ['count==0'] },
+  scenarios: {
+    soak: {
+      executor: 'constant-arrival-rate',
+      rate: Number(__ENV.RATE || 10),
+      timeUnit: '1s',
+      duration: __ENV.DURATION || '10m',
+      preAllocatedVUs: Number(__ENV.PRE_ALLOCATED_VUS || 10),
+      maxVUs: Number(__ENV.MAX_VUS || 100),
+    },
+  },
+};
+
+export default function () {
+  const headers = {
+    'Content-Type': 'application/json',
+    'Idempotency-Key': `${__ENV.RUN_ID || 'soak'}-${__VU}-${__ITER}-${Date.now()}-${Math.random()}`,
+  };
+  if (__ENV.API_KEY) {
+    headers['X-API-Key'] = __ENV.API_KEY;
+  }
+
+  const response = http.post(
+    `${baseURL}/api/v1/targets/${targetID}/events`,
+    JSON.stringify({ payload: { type: 'soak.test', vu: __VU, iteration: __ITER } }),
+    { headers },
+  );
+  check(response, { 'event accepted': (r) => r.status === 201 });
+}

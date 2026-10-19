@@ -1,0 +1,10 @@
+2026-10-17T10:19:00Z	INFO	[vulndb] Need to update DB
+2026-10-17T10:19:00Z	INFO	[vulndb] Downloading vulnerability DB...
+2026-10-17T10:19:00Z	INFO	[vulndb] Downloading artifact...	repo="mirror.gcr.io/aquasec/trivy-db:2"
+2026-10-17T10:21:01Z	INFO	[vulndb] Artifact successfully downloaded	repo="mirror.gcr.io/aquasec/trivy-db:2"
+2026-10-17T10:21:01Z	INFO	[vuln] Vulnerability scanning is enabled
+2026-10-17T10:21:08Z	INFO	Detected OS	family="alpine" version="3.24.2"
+2026-10-17T10:21:08Z	INFO	[alpine] Detecting vulnerabilities...	os_version="3.24" repository="3.24" pkg_num=17
+2026-10-17T10:21:08Z	INFO	Number of language-specific files	num=1
+2026-10-17T10:21:08Z	INFO	[gobinary] Detecting vulnerabilities...
+2026-10-17T10:21:08Z	WARN	Using severities from other vendors for some vulnerabilities. Read https://trivy.dev/docs/v0.76/guide/scanner/vulnerability#severity-selection for details.

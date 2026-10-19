@@ -1,0 +1,17 @@
+$ErrorActionPreference='Stop'
+Set-Location 'C:/Users/PUBLIC_USER/Desktop/falttol_webhook/webhook-dispatcher-ai-handoff/webhook-dispatcher-handoff'
+$env:VERIFY_RUN_ID='target-tests-'+[guid]::NewGuid().ToString('N').Substring(0,8)
+$project=$env:VERIFY_RUN_ID
+$compose=@('compose','--env-file','deploy/verification.env','-p',$project,'-f','deploy/compose.verification.yml')
+$output=Join-Path $PWD "reports/generated/$project"
+New-Item -ItemType Directory -Path $output | Out-Null
+try {
+    & docker.exe @compose up -d --wait postgres redis
+    if ($LASTEXITCODE -ne 0) {throw 'Test dependencies failed'}
+    $mount=(Get-Location).Path+':/src:ro'
+    & docker.exe run --rm --network "${project}_default" -v $mount -w /src -e GOFLAGS=-buildvcs=false -e TEST_DATABASE_URL=postgres://webhook:verification-only@postgres:5432/webhook?sslmode=disable -e TEST_REDIS_URL=redis://redis:6379/0 golang:1.27.2 sh -c 'go test -race -count=1 -timeout 3m ./... && go vet ./... && go build ./... && go run ./cmd/acceptance' 2>&1 | Tee-Object (Join-Path $output 'linux-verification.txt')
+    if ($LASTEXITCODE -ne 0) {throw 'Linux verification failed'}
+} finally {
+    & docker.exe @compose down --volumes --remove-orphans
+    Write-Host "Evidence: $output"
+}

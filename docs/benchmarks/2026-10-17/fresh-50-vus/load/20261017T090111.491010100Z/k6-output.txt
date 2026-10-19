@@ -1,0 +1,119 @@
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: C:\Users\PUBLIC_USER\Desktop\falttol_webhook\webhook-dispatcher-ai-handoff\webhook-dispatcher-handoff\.tmp\fresh-checkout-20261017\reports\generated\verify-20261017085344-e0f508db\load\20261017T090111.491010100Z\script.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 100 max VUs, 50s max duration (incl. graceful stop):
+              * ingestion: 20.00 iterations/s for 20s (maxVUs: 50-100, gracefulStop: 30s)
+
+
+running (01.0s), 008/050 VUs, 12 complete and 0 interrupted iterations
+ingestion   [   5% ] 008/050 VUs  01.0s/20s  20.00 iters/s
+
+running (02.0s), 017/050 VUs, 23 complete and 0 interrupted iterations
+ingestion   [  10% ] 017/050 VUs  02.0s/20s  20.00 iters/s
+
+running (03.0s), 021/050 VUs, 39 complete and 0 interrupted iterations
+ingestion   [  15% ] 021/050 VUs  03.0s/20s  20.00 iters/s
+
+running (04.0s), 018/050 VUs, 62 complete and 0 interrupted iterations
+ingestion   [  20% ] 018/050 VUs  04.0s/20s  20.00 iters/s
+
+running (05.0s), 019/050 VUs, 81 complete and 0 interrupted iterations
+ingestion   [  25% ] 019/050 VUs  05.0s/20s  20.00 iters/s
+
+running (06.0s), 028/050 VUs, 92 complete and 0 interrupted iterations
+ingestion   [  30% ] 028/050 VUs  06.0s/20s  20.00 iters/s
+
+running (07.0s), 027/050 VUs, 113 complete and 0 interrupted iterations
+ingestion   [  35% ] 027/050 VUs  07.0s/20s  20.00 iters/s
+
+running (08.0s), 028/050 VUs, 132 complete and 0 interrupted iterations
+ingestion   [  40% ] 028/050 VUs  08.0s/20s  20.00 iters/s
+
+running (09.0s), 031/050 VUs, 149 complete and 0 interrupted iterations
+ingestion   [  45% ] 031/050 VUs  09.0s/20s  20.00 iters/s
+
+running (10.0s), 030/050 VUs, 170 complete and 0 interrupted iterations
+ingestion   [  50% ] 030/050 VUs  10.0s/20s  20.00 iters/s
+
+running (11.0s), 034/050 VUs, 186 complete and 0 interrupted iterations
+ingestion   [  55% ] 034/050 VUs  11.0s/20s  20.00 iters/s
+
+running (12.0s), 028/050 VUs, 212 complete and 0 interrupted iterations
+ingestion   [  60% ] 028/050 VUs  12.0s/20s  20.00 iters/s
+
+running (13.0s), 034/050 VUs, 226 complete and 0 interrupted iterations
+ingestion   [  65% ] 034/050 VUs  13.0s/20s  20.00 iters/s
+
+running (14.0s), 035/050 VUs, 245 complete and 0 interrupted iterations
+ingestion   [  70% ] 035/050 VUs  14.0s/20s  20.00 iters/s
+
+running (15.0s), 026/050 VUs, 274 complete and 0 interrupted iterations
+ingestion   [  75% ] 026/050 VUs  15.0s/20s  20.00 iters/s
+
+running (16.0s), 024/050 VUs, 296 complete and 0 interrupted iterations
+ingestion   [  80% ] 024/050 VUs  16.0s/20s  20.00 iters/s
+
+running (17.0s), 022/050 VUs, 318 complete and 0 interrupted iterations
+ingestion   [  85% ] 022/050 VUs  17.0s/20s  20.00 iters/s
+
+running (18.0s), 014/050 VUs, 346 complete and 0 interrupted iterations
+ingestion   [  90% ] 014/050 VUs  18.0s/20s  20.00 iters/s
+
+running (19.0s), 015/050 VUs, 365 complete and 0 interrupted iterations
+ingestion   [  95% ] 015/050 VUs  19.0s/20s  20.00 iters/s
+
+running (20.0s), 016/050 VUs, 384 complete and 0 interrupted iterations
+ingestion   [ 100% ] 016/050 VUs  20.0s/20s  20.00 iters/s
+
+
+  █ THRESHOLDS 
+
+    checks
+    ✓ 'rate==1' rate=100.00%
+
+    dropped_iterations
+    ✓ 'count==0' count=0
+
+    http_req_failed
+    ✓ 'rate==0' rate=0.00%
+
+
+  █ TOTAL RESULTS 
+
+    checks_total.......: 400     19.516446/s
+    checks_succeeded...: 100.00% 400 out of 400
+    checks_failed......: 0.00%   0 out of 400
+
+    ✓ event accepted
+
+    HTTP
+    http_req_duration..............: avg=1.1s min=95.11ms med=1.09s max=2.74s p(50)=1.09s p(95)=2.04s p(99)=2.34s
+      { expected_response:true }...: avg=1.1s min=95.11ms med=1.09s max=2.74s p(50)=1.09s p(95)=2.04s p(99)=2.34s
+    http_req_failed................: 0.00%  0 out of 400
+    http_reqs......................: 400    19.516446/s
+
+    EXECUTION
+    dropped_iterations.............: 0      0/s
+    iteration_duration.............: avg=1.1s min=96.96ms med=1.09s max=2.74s p(50)=1.09s p(95)=2.04s p(99)=2.34s
+    iterations.....................: 400    19.516446/s
+    vus............................: 16     min=8        max=35
+    vus_max........................: 50     min=50       max=50
+
+    NETWORK
+    data_received..................: 155 kB 7.6 kB/s
+    data_sent......................: 132 kB 6.4 kB/s
+
+
+
+
+running (20.5s), 000/050 VUs, 400 complete and 0 interrupted iterations
+ingestion ✓ [ 100% ] 000/050 VUs  20s  20.00 iters/s

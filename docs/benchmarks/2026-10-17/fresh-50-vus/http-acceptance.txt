@@ -1,0 +1,29 @@
+=== RUN   TestE2E_DeliveryLifecycle
+--- PASS: TestE2E_DeliveryLifecycle (0.30s)
+=== RUN   TestE2E_IdempotencyConflict
+--- PASS: TestE2E_IdempotencyConflict (0.04s)
+=== RUN   TestE2E_ReplayNonDLQIsConflict
+--- PASS: TestE2E_ReplayNonDLQIsConflict (0.33s)
+=== RUN   TestE2E_DLQReplayRetainsHistory
+--- PASS: TestE2E_DLQReplayRetainsHistory (0.55s)
+=== RUN   TestE2E_DisabledTargetRejectsNewEvents
+--- PASS: TestE2E_DisabledTargetRejectsNewEvents (0.02s)
+=== RUN   TestE2E_AuthenticationAndHealth
+--- PASS: TestE2E_AuthenticationAndHealth (0.02s)
+=== RUN   TestE2E_ConcurrentIdempotencyCreatesOneLogicalEvent
+--- PASS: TestE2E_ConcurrentIdempotencyCreatesOneLogicalEvent (0.15s)
+=== RUN   TestE2E_SignedDeliveryPassesReceiverVerification
+    e2e_test.go:302: TEST_SIGNING_TARGET_URL required
+--- SKIP: TestE2E_SignedDeliveryPassesReceiverVerification (0.00s)
+=== RUN   TestE2E_Showcase
+    showcase_test.go:40: 1. Accept an event asynchronously and inspect its durable outcome.
+    showcase_test.go:44:    event=085fa488-1cbb-46ca-abfd-c1ca6330b39c -> SUCCEEDED
+    showcase_test.go:52: 2. Reusing the key returns 409 and the SAME event ID; no second logical event.
+    showcase_test.go:61: 3. event=9aae4acd-e56b-48ad-9251-246c9ecbfb9d -> DLQ after 3 HTTP 500 attempts; circuit=OPEN.
+    showcase_test.go:67: 4. New event is deferred with ZERO attempts while the circuit is open.
+    showcase_test.go:70: 5. After cooldown, a successful probe closes the circuit; deferred event succeeds.
+    showcase_test.go:86: 6. Replay succeeds with the SAME event ID and all 4 historical attempts retained.
+    showcase_test.go:91: 7. Metrics are exposed. At-least-once delivery still permits duplicate HTTP after a crash.
+--- PASS: TestE2E_Showcase (6.61s)
+PASS
+ok  	github.com/dhairyarajvarma/webhook-dispatcher/test/e2e	11.675s

@@ -1,0 +1,21 @@
+=== RUN   TestE2E_DeliveryLifecycle
+--- PASS: TestE2E_DeliveryLifecycle (0.32s)
+=== RUN   TestE2E_IdempotencyConflict
+--- PASS: TestE2E_IdempotencyConflict (0.04s)
+=== RUN   TestE2E_ReplayNonDLQIsConflict
+--- PASS: TestE2E_ReplayNonDLQIsConflict (0.28s)
+=== RUN   TestE2E_DLQReplayRetainsHistory
+--- PASS: TestE2E_DLQReplayRetainsHistory (0.55s)
+=== RUN   TestE2E_DisabledTargetRejectsNewEvents
+--- PASS: TestE2E_DisabledTargetRejectsNewEvents (0.01s)
+=== RUN   TestE2E_AuthenticationAndHealth
+--- PASS: TestE2E_AuthenticationAndHealth (0.00s)
+=== RUN   TestE2E_ConcurrentIdempotencyCreatesOneLogicalEvent
+--- PASS: TestE2E_ConcurrentIdempotencyCreatesOneLogicalEvent (0.09s)
+=== RUN   TestE2E_SignedDeliveryPassesReceiverVerification
+--- PASS: TestE2E_SignedDeliveryPassesReceiverVerification (0.28s)
+=== RUN   TestE2E_Showcase
+    showcase_test.go:15: run go run ./cmd/acceptance -demo for the isolated showcase
+--- SKIP: TestE2E_Showcase (0.00s)
+PASS
+ok  	github.com/dhairyarajvarma/webhook-dispatcher/test/e2e	4.883s

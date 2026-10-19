@@ -1,0 +1,407 @@
+package store
+
+import (
+	"context"
+	"database/sql"
+	"encoding/json"
+	"errors"
+	"fmt"
+	"time"
+)
+
+type EventStore struct {
+	db *sql.DB
+}
+
+func NewEventStore(db *sql.DB) *EventStore {
+	return &EventStore{db: db}
+}
+
+// CreateWithOutbox creates an event and its outbox entry in one transaction,
+// per QUEUE_AND_DELIVERY_SEMANTICS.md. If an event already exists for the
+// same (target_id, idempotency_key), no new event or outbox row is created;
+// the existing event is returned with created=false.
+func (s *EventStore) CreateWithOutbox(
+	ctx context.Context, targetID, idempotencyKey string, payload json.RawMessage, payloadHash string, pendingLimit ...int,
+) (event Event, created bool, err error) {
+	for attempt := 0; attempt < 2; attempt++ {
+		event, created, err = s.createWithOutbox(ctx, targetID, idempotencyKey, payload, payloadHash, pendingLimit...)
+		if !errors.Is(err, errExpiredIdempotency) {
+			return
+		}
+	}
+	return
+}
+
+var errExpiredIdempotency = errors.New("idempotency record expired during creation; retry request")
+
+func (s *EventStore) createWithOutbox(
+	ctx context.Context, targetID, idempotencyKey string, payload json.RawMessage, payloadHash string, pendingLimit ...int,
+) (event Event, created bool, err error) {
+	tx, err := s.db.BeginTx(ctx, nil)
+	if err != nil {
+		return Event{}, false, fmt.Errorf("begin transaction: %w", err)
+	}
+	defer tx.Rollback()
+	var enabled bool
+	if err := tx.QueryRowContext(ctx, `SELECT enabled FROM targets WHERE id=$1 FOR SHARE`, targetID).Scan(&enabled); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return Event{}, false, ErrNotFound
+		}
+		return Event{}, false, err
+	}
+	if !enabled {
+		return Event{}, false, ErrTargetDisabled
+	}
+	if len(pendingLimit) > 0 && pendingLimit[0] > 0 {
+		// Coordinate bounded admission across all writers using the same schema.
+		if _, err := tx.ExecContext(ctx, `SELECT pg_advisory_xact_lock(hashtext(current_schema()), 70131)`); err != nil {
+			return Event{}, false, err
+		}
+		existing, err := s.getByIdempotencyKeyTx(ctx, tx, targetID, idempotencyKey)
+		if err == nil {
+			return existing, false, tx.Commit()
+		}
+		if !errors.Is(err, ErrNotFound) {
+			return Event{}, false, err
+		}
+		var count int
+		if err := tx.QueryRowContext(ctx, `SELECT count(*) FROM events WHERE status IN ('PENDING','QUEUED','RETRY_WAIT')`).Scan(&count); err != nil {
+			return Event{}, false, err
+		}
+		if count >= pendingLimit[0] {
+			return Event{}, false, ErrOverloaded
+		}
+	}
+
+	var ev Event
+	insertErr := tx.QueryRowContext(ctx, `
+		INSERT INTO events (target_id, idempotency_key, payload_json, payload_hash)
+		VALUES ($1, $2, $3, $4)
+		ON CONFLICT (target_id, idempotency_key) DO NOTHING
+		RETURNING `+eventColumns, targetID, idempotencyKey, payload, payloadHash,
+	).Scan(
+		&ev.ID, &ev.TargetID, &ev.IdempotencyKey, &ev.PayloadJSON, &ev.PayloadHash, &ev.Status,
+		&ev.AttemptCount, &ev.NextAttemptAt, &ev.CreatedAt, &ev.UpdatedAt, &ev.CompletedAt,
+	)
+
+	// sql.ErrNoRows here means the ON CONFLICT DO NOTHING fired - a
+	// different situation from "not found" (scanEvent's meaning below),
+	// so it's handled inline rather than through scanEvent.
+	if errors.Is(insertErr, sql.ErrNoRows) {
+		// Conflict: an event already exists for this (target_id, idempotency_key).
+		existing, getErr := s.getByIdempotencyKeyTx(ctx, tx, targetID, idempotencyKey)
+		if errors.Is(getErr, ErrNotFound) {
+			return Event{}, false, errExpiredIdempotency
+		}
+		if getErr != nil {
+			return Event{}, false, getErr
+		}
+		if err := tx.Commit(); err != nil {
+			return Event{}, false, fmt.Errorf("commit read-only idempotency check: %w", err)
+		}
+		return existing, false, nil
+	}
+	if insertErr != nil {
+		return Event{}, false, fmt.Errorf("insert event: %w", insertErr)
+	}
+
+	if _, err := tx.ExecContext(ctx, `
+		INSERT INTO outbox_messages (event_id) VALUES ($1)
+	`, ev.ID); err != nil {
+		return Event{}, false, fmt.Errorf("insert outbox message: %w", err)
+	}
+
+	if err := tx.Commit(); err != nil {
+		return Event{}, false, fmt.Errorf("commit event creation: %w", err)
+	}
+
+	return ev, true, nil
+}
+
+const eventColumns = `id, target_id, idempotency_key, payload_json, payload_hash, status,
+		       attempt_count, next_attempt_at, created_at, updated_at, completed_at`
+
+// scanEvent reads one row shaped like eventColumns, used by every query that
+// selects a single event by some unique key.
+func scanEvent(row *sql.Row) (Event, error) {
+	var ev Event
+	err := row.Scan(
+		&ev.ID, &ev.TargetID, &ev.IdempotencyKey, &ev.PayloadJSON, &ev.PayloadHash, &ev.Status,
+		&ev.AttemptCount, &ev.NextAttemptAt, &ev.CreatedAt, &ev.UpdatedAt, &ev.CompletedAt,
+	)
+	if errors.Is(err, sql.ErrNoRows) {
+		return Event{}, ErrNotFound
+	}
+	if err != nil {
+		return Event{}, fmt.Errorf("scan event: %w", err)
+	}
+	return ev, nil
+}
+
+func (s *EventStore) getByIdempotencyKeyTx(ctx context.Context, tx *sql.Tx, targetID, idempotencyKey string) (Event, error) {
+	row := tx.QueryRowContext(ctx,
+		`SELECT `+eventColumns+` FROM events WHERE target_id = $1 AND idempotency_key = $2`, targetID, idempotencyKey)
+	return scanEvent(row)
+}
+
+// GetByID returns an event by ID.
+func (s *EventStore) GetByID(ctx context.Context, id string) (Event, error) {
+	row := s.db.QueryRowContext(ctx, `SELECT `+eventColumns+` FROM events WHERE id = $1`, id)
+	return scanEvent(row)
+}
+
+var terminalStatuses = map[string]bool{
+	StatusSucceeded: true,
+	StatusDLQ:       true,
+	StatusCanceled:  true,
+}
+
+// IsTerminalStatus reports whether status is one a worker must never
+// transition out of, so a late/duplicate delivery attempt can't regress a
+// resolved event.
+func IsTerminalStatus(status string) bool {
+	return terminalStatuses[status]
+}
+
+// AttemptResult is one delivery attempt's outcome, to be recorded atomically
+// with the event's resulting status. Outcome must be OutcomeSuccess,
+// OutcomeRetryableFailure, or OutcomeNonRetryableFailure.
+type AttemptResult struct {
+	Outcome      string
+	StartedAt    time.Time
+	FinishedAt   time.Time
+	HTTPStatus   *int
+	DurationMS   int
+	ErrorClass   *string
+	ErrorMessage *string
+}
+
+// RecordAttemptAndTransition persists a delivery attempt and transitions the
+// event's status in one transaction, locking the event row so a duplicate
+// queue message being processed concurrently can't record a second attempt
+// against a stale attempt_count or regress an already-terminal event.
+//
+// The resulting status follows QUEUE_AND_DELIVERY_SEMANTICS.md's retry
+// policy: success -> SUCCEEDED; non-retryable failure -> DLQ immediately;
+// retryable failure -> RETRY_WAIT with next_attempt_at set by nextDelay,
+// unless maxAttempts is reached, in which case -> DLQ.
+//
+// Returns applied=false if the event had already reached a terminal status.
+func (s *EventStore) RecordAttemptAndTransition(
+	ctx context.Context, eventID string, attempt AttemptResult, maxAttempts int, nextDelay func(attemptNumber int) time.Duration, deliveryToken ...string,
+) (applied bool, err error) {
+	tx, err := s.db.BeginTx(ctx, nil)
+	if err != nil {
+		return false, fmt.Errorf("begin transaction: %w", err)
+	}
+	defer tx.Rollback()
+
+	var status string
+	var attemptCount int
+	if err := tx.QueryRowContext(ctx,
+		`SELECT status, attempt_count FROM events WHERE id = $1 FOR UPDATE`, eventID,
+	).Scan(&status, &attemptCount); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return false, ErrNotFound
+		}
+		return false, fmt.Errorf("lock event row: %w", err)
+	}
+
+	if terminalStatuses[status] {
+		return false, tx.Commit()
+	}
+	if len(deliveryToken) > 0 {
+		var current bool
+		if err := tx.QueryRowContext(ctx, `SELECT COALESCE(delivery_token=$2 AND delivery_lease_until>now(), false)
+			FROM events WHERE id=$1`, eventID, deliveryToken[0]).Scan(&current); err != nil {
+			// A cleared token is not a match either.
+			if err == sql.ErrNoRows {
+				return false, tx.Commit()
+			}
+			return false, fmt.Errorf("check delivery lease: %w", err)
+		}
+		if !current {
+			return false, tx.Commit()
+		}
+	}
+
+	attemptNumber := attemptCount + 1
+	if _, err := tx.ExecContext(ctx, `
+		INSERT INTO delivery_attempts
+			(event_id, attempt_number, started_at, finished_at, outcome, http_status, duration_ms, error_class, error_message)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+	`, eventID, attemptNumber, attempt.StartedAt, attempt.FinishedAt, attempt.Outcome, attempt.HTTPStatus,
+		attempt.DurationMS, attempt.ErrorClass, attempt.ErrorMessage,
+	); err != nil {
+		return false, fmt.Errorf("insert delivery attempt: %w", err)
+	}
+
+	var newStatus string
+	var nextAttemptAt *time.Time
+	switch attempt.Outcome {
+	case OutcomeSuccess:
+		newStatus = StatusSucceeded
+	case OutcomeNonRetryableFailure:
+		newStatus = StatusDLQ
+	default: // OutcomeRetryableFailure
+		if attemptNumber >= maxAttempts {
+			newStatus = StatusDLQ
+		} else {
+			newStatus = StatusRetryWait
+			at := time.Now().Add(nextDelay(attemptNumber))
+			nextAttemptAt = &at
+		}
+	}
+
+	if _, err := tx.ExecContext(ctx, `
+		UPDATE events
+		SET status = $2,
+		    attempt_count = $3,
+		    next_attempt_at = $4,
+		    delivery_token = NULL, delivery_lease_until = NULL,
+		    updated_at = now(),
+		    completed_at = CASE WHEN $2 IN ('SUCCEEDED', 'DLQ') THEN now() ELSE completed_at END
+		WHERE id = $1
+	`, eventID, newStatus, attemptNumber, nextAttemptAt); err != nil {
+		return false, fmt.Errorf("update event status: %w", err)
+	}
+
+	if err := tx.Commit(); err != nil {
+		return false, fmt.Errorf("commit attempt transition: %w", err)
+	}
+	return true, nil
+}
+
+// ScheduleDueRetries atomically queues due retries with durable outbox rows.
+// Redis publication is exclusively the relay's responsibility (Decision 30).
+func (s *EventStore) ScheduleDueRetries(ctx context.Context, limit int) (int64, error) {
+	result, err := s.db.ExecContext(ctx, `
+		WITH due AS (
+			SELECT id FROM events
+			WHERE status = $1 AND next_attempt_at <= now()
+			ORDER BY next_attempt_at, id
+			LIMIT $2
+			FOR UPDATE SKIP LOCKED
+		), queued AS (
+			UPDATE events e
+			SET status = $3, updated_at = now()
+			FROM due
+			WHERE e.id = due.id
+			RETURNING e.id
+		)
+		INSERT INTO outbox_messages (event_id)
+		SELECT id FROM queued
+	`, StatusRetryWait, limit, StatusQueued)
+	if err != nil {
+		return 0, fmt.Errorf("schedule due retries with outbox: %w", err)
+	}
+	count, err := result.RowsAffected()
+	if err != nil {
+		return 0, fmt.Errorf("scheduled retry count: %w", err)
+	}
+	return count, nil
+}
+
+// DeferRetry puts a non-terminal event back to RETRY_WAIT at nextAttemptAt
+// without recording a delivery attempt, used whenever no delivery was
+// actually made: a worker declining to call the target because its
+// circuit breaker is open (retry after the remaining cooldown). Returns
+// applied=false if the event has already reached a terminal status.
+func (s *EventStore) DeferRetry(ctx context.Context, eventID string, nextAttemptAt time.Time, deliveryToken ...string) (applied bool, err error) {
+	tx, err := s.db.BeginTx(ctx, nil)
+	if err != nil {
+		return false, fmt.Errorf("begin transaction: %w", err)
+	}
+	defer tx.Rollback()
+
+	var status string
+	if err := tx.QueryRowContext(ctx,
+		`SELECT status FROM events WHERE id = $1 FOR UPDATE`, eventID,
+	).Scan(&status); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return false, ErrNotFound
+		}
+		return false, fmt.Errorf("lock event row: %w", err)
+	}
+
+	if terminalStatuses[status] {
+		return false, tx.Commit()
+	}
+
+	var token any
+	if len(deliveryToken) > 0 {
+		token = deliveryToken[0]
+	}
+	result, err := tx.ExecContext(ctx,
+		`UPDATE events SET status = $2, next_attempt_at = $3, updated_at = now(),
+		 delivery_token=NULL, delivery_lease_until=NULL
+		 WHERE id = $1 AND ($4::uuid IS NULL OR (delivery_token=$4 AND delivery_lease_until>now()))`,
+		eventID, StatusRetryWait, nextAttemptAt, token,
+	)
+	if err != nil {
+		return false, fmt.Errorf("defer retry: %w", err)
+	}
+	n, err := result.RowsAffected()
+	if err != nil {
+		return false, err
+	}
+	return n > 0, tx.Commit()
+}
+
+// ReplayFromDLQ resets a DLQ event for a fresh delivery attempt: a full new
+// retry budget (attempt_count back to 0) so it isn't immediately re-DLQ'd,
+// while preserving its identity and the existing delivery_attempts history.
+// The reset event becomes due immediately; the existing retry scheduler
+// picks it up and queues it through the outbox on its next poll, same as any
+// other due retry, per QUEUE_AND_DELIVERY_SEMANTICS.md. Returns
+// applied=false if the event is not currently DLQ (not eligible for replay).
+func (s *EventStore) ReplayFromDLQ(ctx context.Context, eventID string) (applied bool, err error) {
+	result, err := s.db.ExecContext(ctx, `
+		UPDATE events
+	SET status = $2, attempt_count = 0, next_attempt_at = now(), completed_at = NULL, updated_at = now(),
+	    delivery_token = NULL, delivery_lease_until = NULL
+		WHERE id = $1 AND status = $3
+	`, eventID, StatusRetryWait, StatusDLQ)
+	if err != nil {
+		return false, fmt.Errorf("replay event from dlq: %w", err)
+	}
+	rows, err := result.RowsAffected()
+	if err != nil {
+		return false, fmt.Errorf("replay event rows affected: %w", err)
+	}
+	return rows > 0, nil
+}
+
+// ListAttempts returns the bounded delivery attempt history for an event,
+// most recent first.
+func (s *EventStore) ListAttempts(ctx context.Context, eventID string, limit int) ([]DeliveryAttempt, error) {
+	rows, err := s.db.QueryContext(ctx, `
+		SELECT id, event_id, attempt_number, started_at, finished_at, outcome,
+		       http_status, duration_ms, error_class, error_message
+		FROM delivery_attempts
+		WHERE event_id = $1
+		ORDER BY started_at DESC, id DESC
+		LIMIT $2
+	`, eventID, limit)
+	if err != nil {
+		return nil, fmt.Errorf("select delivery attempts: %w", err)
+	}
+	defer rows.Close()
+
+	attempts := make([]DeliveryAttempt, 0)
+	for rows.Next() {
+		var a DeliveryAttempt
+		if err := rows.Scan(
+			&a.ID, &a.EventID, &a.AttemptNumber, &a.StartedAt, &a.FinishedAt, &a.Outcome,
+			&a.HTTPStatus, &a.DurationMS, &a.ErrorClass, &a.ErrorMessage,
+		); err != nil {
+			return nil, fmt.Errorf("scan delivery attempt: %w", err)
+		}
+		attempts = append(attempts, a)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("iterate delivery attempts: %w", err)
+	}
+	return attempts, nil
+}

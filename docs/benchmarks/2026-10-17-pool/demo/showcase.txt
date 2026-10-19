@@ -1,0 +1,14 @@
+Isolated HTTP showcase: 3 attempts, 200–400ms backoff cap, 5s circuit cooldown.
+These shortened demo settings are not production defaults or benchmark results.
+=== RUN   TestE2E_Showcase
+    showcase_test.go:40: 1. Accept an event asynchronously and inspect its durable outcome.
+    showcase_test.go:44:    event=ed14925c-5de9-4227-a313-52f2bffd2324 -> SUCCEEDED
+    showcase_test.go:52: 2. Reusing the key returns 409 and the SAME event ID; no second logical event.
+    showcase_test.go:61: 3. event=5cecaad4-18de-4a53-a0c4-bc3a6e70a0f5 -> DLQ after 3 HTTP 500 attempts; circuit=OPEN.
+    showcase_test.go:67: 4. New event is deferred with ZERO attempts while the circuit is open.
+    showcase_test.go:70: 5. After cooldown, a successful probe closes the circuit; deferred event succeeds.
+    showcase_test.go:86: 6. Replay succeeds with the SAME event ID and all 4 historical attempts retained.
+    showcase_test.go:91: 7. Metrics are exposed. At-least-once delivery still permits duplicate HTTP after a crash.
+--- PASS: TestE2E_Showcase (6.25s)
+PASS
+ok  	github.com/dhairyarajvarma/webhook-dispatcher/test/e2e	9.685s

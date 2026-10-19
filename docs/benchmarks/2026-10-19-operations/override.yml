@@ -1,0 +1,10 @@
+services:
+  api:
+    environment:
+      WORKER_TARGET_CONCURRENCY: '2'
+      EVENTS_MAX_PENDING_EVENTS: '0'
+  restored-api:
+    environment:
+      DATABASE_URL: postgres://webhook:verification-only@postgres:5432/webhook?sslmode=disable
+      REDIS_STREAM: verification-deliveries
+      WORKER_TARGET_CONCURRENCY: '2'

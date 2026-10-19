@@ -1,0 +1,69 @@
+Unable to find image 'golang:1.27.2' locally
+1.27.2: Pulling from library/golang
+4f4fb700ef54: Pulling fs layer
+4dc3950125eb: Pulling fs layer
+4846f2900730: Pulling fs layer
+62fe2e747f69: Pulling fs layer
+b2b6413ae8f3: Pulling fs layer
+a6132307e9f8: Pulling fs layer
+801401a9a8ba: Pulling fs layer
+4f4fb700ef54: Already exists
+b2b6413ae8f3: Already exists
+4f4fb700ef54: Pull complete
+62fe2e747f69: Download complete
+801401a9a8ba: Download complete
+4846f2900730: Download complete
+3c2ab6224b80: Download complete
+1fbf9551eaaf: Download complete
+4846f2900730: Pull complete
+4dc3950125eb: Download complete
+62fe2e747f69: Pull complete
+4dc3950125eb: Pull complete
+a6132307e9f8: Download complete
+a6132307e9f8: Pull complete
+b2b6413ae8f3: Pull complete
+801401a9a8ba: Pull complete
+Digest: sha256:820153096fda4de6ac1b7194d12e416b7dd8f4e9a33d17e0345b111b945162d8
+Status: Downloaded newer image for golang:1.27.2
+go: downloading github.com/jackc/pgx/v5 v5.11.0
+go: downloading github.com/redis/go-redis/v9 v9.23.0
+go: downloading github.com/jackc/puddle/v2 v2.2.2
+go: downloading golang.org/x/text v0.41.0
+go: downloading github.com/jackc/pgservicefile v0.0.0-20240606120523-5a60cdf6a761
+go: downloading github.com/jackc/pgpassfile v1.0.0
+go: downloading golang.org/x/sync v0.22.0
+go: downloading github.com/cespare/xxhash/v2 v2.3.0
+go: downloading go.uber.org/atomic v1.12.0
+go: downloading golang.org/x/sys v0.48.0
+# github.com/dhairyarajvarma/webhook-dispatcher/docs/benchmarks/2026-10-18-mixed [github.com/dhairyarajvarma/webhook-dispatcher/docs/benchmarks/2026-10-18-mixed.test]
+docs/benchmarks/2026-10-18-mixed/target_concurrency_test.go:19:8: undefined: Pool
+docs/benchmarks/2026-10-18-mixed/target_concurrency_test.go:66:21: undefined: testStores
+docs/benchmarks/2026-10-18-mixed/target_concurrency_test.go:102:7: undefined: NewPool
+docs/benchmarks/2026-10-18-mixed/target_concurrency_test.go:102:97: undefined: testPolicy
+docs/benchmarks/2026-10-18-mixed/target_concurrency_test.go:102:111: undefined: testCircuitConfig
+docs/benchmarks/2026-10-18-mixed/target_concurrency_test.go:102:140: undefined: testLogger
+docs/benchmarks/2026-10-18-mixed/target_concurrency_test.go:102:154: undefined: testMetrics
+?   	github.com/dhairyarajvarma/webhook-dispatcher/cmd/acceptance	[no test files]
+ok  	github.com/dhairyarajvarma/webhook-dispatcher/cmd/benchmark	2.666s
+ok  	github.com/dhairyarajvarma/webhook-dispatcher/cmd/server	1.075s
+?   	github.com/dhairyarajvarma/webhook-dispatcher/cmd/targetsim	[no test files]
+FAIL	github.com/dhairyarajvarma/webhook-dispatcher/docs/benchmarks/2026-10-18-mixed [build failed]
+?   	github.com/dhairyarajvarma/webhook-dispatcher/examples/receiver	[no test files]
+ok  	github.com/dhairyarajvarma/webhook-dispatcher/internal/api	17.617s
+ok  	github.com/dhairyarajvarma/webhook-dispatcher/internal/breaker	1.068s
+ok  	github.com/dhairyarajvarma/webhook-dispatcher/internal/config	1.076s
+ok  	github.com/dhairyarajvarma/webhook-dispatcher/internal/crypto	1.071s
+ok  	github.com/dhairyarajvarma/webhook-dispatcher/internal/delivery	1.358s
+ok  	github.com/dhairyarajvarma/webhook-dispatcher/internal/observability	1.203s
+ok  	github.com/dhairyarajvarma/webhook-dispatcher/internal/outbound	1.062s
+ok  	github.com/dhairyarajvarma/webhook-dispatcher/internal/outbox	6.446s
+ok  	github.com/dhairyarajvarma/webhook-dispatcher/internal/queue	1.048s
+ok  	github.com/dhairyarajvarma/webhook-dispatcher/internal/retry	3.669s
+?   	github.com/dhairyarajvarma/webhook-dispatcher/internal/service	[no test files]
+ok  	github.com/dhairyarajvarma/webhook-dispatcher/internal/signature	1.044s
+ok  	github.com/dhairyarajvarma/webhook-dispatcher/internal/store	22.398s
+ok  	github.com/dhairyarajvarma/webhook-dispatcher/internal/targetsim	1.364s
+?   	github.com/dhairyarajvarma/webhook-dispatcher/internal/testutil	[no test files]
+ok  	github.com/dhairyarajvarma/webhook-dispatcher/internal/worker	19.675s
+ok  	github.com/dhairyarajvarma/webhook-dispatcher/test/e2e	1.072s
+FAIL

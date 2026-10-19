@@ -1,0 +1,69 @@
+{
+  "peak_sampled_pending": 4,
+  "resources": {
+    "api": {
+      "memory_peak_mib": 12.35,
+      "memory_last_mib": 11.21,
+      "cpu_mean_percent_per_core": 12.42450704225352,
+      "samples": 142,
+      "memory_first_mib": 7.395
+    },
+    "postgres": {
+      "memory_peak_mib": 64.77,
+      "memory_last_mib": 61.05,
+      "cpu_mean_percent_per_core": 14.1419014084507,
+      "samples": 142,
+      "memory_first_mib": 44.34
+    },
+    "redis": {
+      "memory_peak_mib": 11.25,
+      "memory_last_mib": 6.77,
+      "cpu_mean_percent_per_core": 4.496690140845068,
+      "samples": 142,
+      "memory_first_mib": 5.836
+    },
+    "simulator": {
+      "memory_peak_mib": 9.547,
+      "memory_last_mib": 8.234,
+      "cpu_mean_percent_per_core": 0.6729577464788733,
+      "samples": 142,
+      "memory_first_mib": 1.691
+    }
+  },
+  "workloads": [
+    {
+      "dropped": 0,
+      "http_failed": 0,
+      "kind": "healthy",
+      "delivery": {
+        "accepted": 3001,
+        "succeeded": 3001,
+        "dlq": 0,
+        "pending": 0,
+        "canceled": 0,
+        "success_latency_p50_seconds": 0.076795,
+        "success_latency_p95_seconds": 0.116255,
+        "success_latency_p99_seconds": 0.121099
+      },
+      "api_p95_ms": 15.2148
+    },
+    {
+      "dropped": 0,
+      "http_failed": 0,
+      "kind": "slow",
+      "delivery": {
+        "accepted": 1800,
+        "succeeded": 1800,
+        "dlq": 0,
+        "pending": 0,
+        "canceled": 0,
+        "success_latency_p50_seconds": 0.578485,
+        "success_latency_p95_seconds": 3.8348831999999993,
+        "success_latency_p99_seconds": 7.19641226
+      },
+      "api_p95_ms": 15.09553
+    }
+  ],
+  "peak_sampled_inflight": 3,
+  "resource_samples": 142
+}

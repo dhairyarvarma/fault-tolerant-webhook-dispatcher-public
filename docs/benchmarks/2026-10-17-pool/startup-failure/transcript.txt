@@ -1,0 +1,143 @@
+**********************
+PowerShell transcript start
+Start time: 20261017151500
+Username: PUBLIC_HOST\PUBLIC_USER
+RunAs User: PUBLIC_HOST\PUBLIC_USER
+Configuration Name: 
+Machine: PUBLIC_HOST (Microsoft Windows NT 10.0.26200.0)
+Host Application: C:\Users\PUBLIC_USER\.cache\codex-runtimes\codex-primary-runtime\dependencies\native\powershell\pwsh.dll -Command try { [Console]::OutputEncoding=[System.Text.Encoding]::UTF8 } catch {}
+$env:GOCACHE=Join-Path (Get-Location) '.tmp\gocache'
+$env:PATH=(Join-Path (Get-Location) '.tmp\tools')+';'+$env:PATH
+& ./scripts/verify-release.ps1 -Profile
+Process ID: 8996
+PSVersion: 7.6.5
+PSEdition: Core
+GitCommitId: 7.6.5
+OS: Microsoft Windows 10.0.26200
+Platform: Win32NT
+PSCompatibleVersions: 1.0, 2.0, 3.0, 4.0, 5.0, 5.1, 6.0, 7.0
+PSRemotingProtocolVersion: 2.4
+SerializationVersion: 1.1.0.1
+WSManStackVersion: 3.0
+**********************
+#1 [internal] load local bake definitions
+#1 reading from stdin 1.44kB done
+#1 DONE 0.0s
+
+#2 [target-simulator internal] load build definition from Dockerfile
+#2 transferring dockerfile: 379B 0.1s done
+#2 DONE 0.1s
+
+#3 [api internal] load metadata for docker.io/library/alpine:3.20
+#3 ...
+
+#4 [api internal] load metadata for docker.io/library/golang:1.27.2-alpine
+#4 DONE 0.1s
+
+#3 [target-simulator internal] load metadata for docker.io/library/alpine:3.20
+#3 ...
+
+#5 [auth] library/alpine:pull token for registry-1.docker.io
+#5 DONE 0.0s
+
+#3 [target-simulator internal] load metadata for docker.io/library/alpine:3.20
+#3 DONE 2.6s
+
+#6 [api internal] load .dockerignore
+#6 transferring context: 122B 0.0s done
+#6 DONE 0.0s
+
+#7 [target-simulator internal] load build context
+#7 DONE 0.0s
+
+#8 [api stage-1 1/3] FROM docker.io/library/alpine:3.20@sha256:d9e853e87e55526f6b2917df91a2115c36dd7c696a35be12163d44e6e2a4b6bc
+#8 resolve docker.io/library/alpine:3.20@sha256:d9e853e87e55526f6b2917df91a2115c36dd7c696a35be12163d44e6e2a4b6bc 0.1s done
+#8 DONE 0.1s
+
+#9 [target-simulator build 1/6] FROM docker.io/library/golang:1.27.2-alpine@sha256:f92b6ef800e499660581efdabdf25d9d817a9d124eaf900924f0504e7e27e12d
+#9 resolve docker.io/library/golang:1.27.2-alpine@sha256:f92b6ef800e499660581efdabdf25d9d817a9d124eaf900924f0504e7e27e12d
+#9 resolve docker.io/library/golang:1.27.2-alpine@sha256:f92b6ef800e499660581efdabdf25d9d817a9d124eaf900924f0504e7e27e12d 0.1s done
+#9 DONE 0.1s
+
+#8 [target-simulator stage-1 1/3] FROM docker.io/library/alpine:3.20@sha256:d9e853e87e55526f6b2917df91a2115c36dd7c696a35be12163d44e6e2a4b6bc
+#8 resolve docker.io/library/alpine:3.20@sha256:d9e853e87e55526f6b2917df91a2115c36dd7c696a35be12163d44e6e2a4b6bc 0.1s done
+#8 DONE 0.1s
+
+#7 [api internal] load build context
+#7 transferring context: 6.12MB 0.6s done
+#7 transferring context: 6.12MB 0.6s done
+#7 DONE 0.6s
+
+#10 [target-simulator build 2/6] WORKDIR /src
+#10 CACHED
+
+#11 [target-simulator build 3/6] COPY go.mod go.sum ./
+#11 CACHED
+
+#12 [api build 4/6] RUN go mod download
+#12 CACHED
+
+#13 [target-simulator build 5/6] COPY . .
+#13 DONE 0.4s
+
+#13 [target-simulator build 5/6] COPY . .
+#13 DONE 0.4s
+
+#14 [target-simulator build 6/6] RUN CGO_ENABLED=0 go build -trimpath -o /out/app ./cmd/targetsim
+#14 ...
+
+#15 [api build 6/6] RUN CGO_ENABLED=0 go build -trimpath -o /out/app ./cmd/server
+#15 ...
+
+#14 [target-simulator build 6/6] RUN CGO_ENABLED=0 go build -trimpath -o /out/app ./cmd/targetsim
+#14 DONE 22.6s
+
+#16 [target-simulator stage-1 2/3] RUN apk add --no-cache ca-certificates
+#16 CACHED
+
+#17 [target-simulator stage-1 3/3] COPY --from=build /out/app /usr/local/bin/app
+#17 CACHED
+
+#18 [target-simulator] exporting to image
+#18 exporting layers done
+#18 exporting manifest sha256:fca6580ffec2ca880c05d0bb558bd0b8208d5dc8f759ecf6602455fc8d29f819 0.0s done
+#18 exporting config sha256:aafa48baa63f309e7f35e064a27d95dbf39461983b19eee6721de0ac50086d4f 0.0s done
+#18 exporting attestation manifest sha256:6ba314aafe8e6d8c6080ef1ed6e6e87bfb7fbb0a99f4189a595c1083a536678b 0.0s done
+#18 exporting manifest list sha256:3d9180eda70e2e327d47669ee0860711044c770b5eee18c7813a1a3bea1ac143 0.0s done
+#18 naming to docker.io/library/webhook-targetsim:verify-verify-20261017094500-72505f1e done
+#18 unpacking to docker.io/library/webhook-targetsim:verify-verify-20261017094500-72505f1e 0.0s done
+#18 DONE 0.3s
+
+#15 [api build 6/6] RUN CGO_ENABLED=0 go build -trimpath -o /out/app ./cmd/server
+#15 ...
+
+#19 [target-simulator] resolving provenance for metadata file
+#19 DONE 0.1s
+
+#15 [api build 6/6] RUN CGO_ENABLED=0 go build -trimpath -o /out/app ./cmd/server
+#15 DONE 36.0s
+
+#16 [api stage-1 2/3] RUN apk add --no-cache ca-certificates
+#16 CACHED
+
+#20 [api stage-1 3/3] COPY --from=build /out/app /usr/local/bin/app
+#20 CACHED
+
+#21 [api] exporting to image
+#21 exporting layers done
+#21 exporting manifest sha256:1720fd803ad158d184c27a135fce71edf2446bf5cd019f2160df2b14b152e486 0.0s done
+#21 exporting config sha256:81cac9fbb5bc97d21516bbf15f2b59ce5c4d62b65ace5dda479008aece48d296 0.0s done
+#21 exporting attestation manifest sha256:290b9bb1d7467a885e5d90450738a7fc0ecb22e4c2277849fe6c476d88e3f5e8 0.0s done
+#21 exporting manifest list sha256:c18d8a606496f8fb3955513e24a0631c965fe9de585a52d9f8d605d81085ad6d 0.0s done
+#21 naming to docker.io/library/webhook-dispatcher:verify-verify-20261017094500-72505f1e done
+#21 unpacking to docker.io/library/webhook-dispatcher:verify-verify-20261017094500-72505f1e 0.0s done
+#21 DONE 0.2s
+
+#22 [api] resolving provenance for metadata file
+#22 DONE 0.0s
+PS>TerminatingError(): "Docker command failed: compose"
+>> TerminatingError(): "Docker command failed: compose"
+**********************
+PowerShell transcript end
+End time: 20261017151559
+**********************

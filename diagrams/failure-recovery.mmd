@@ -1,0 +1,21 @@
+flowchart TD
+    E[Event committed] --> O[Outbox row committed, same transaction]
+    O --> R[Outbox relay publishes to Redis stream]
+    R --> W[Worker claims message via XREADGROUP]
+    W --> CB{Circuit breaker allows?}
+    CB -- no, OPEN --> DF[Defer to RETRY_WAIT\nno attempt recorded]
+    CB -- yes --> H{Target accepts?}
+    H -- yes --> S[Record SUCCESS; RecordCircuitOutcome closes circuit]
+    H -- no --> F[Record failed attempt; RecordCircuitOutcome\nmay open circuit at threshold]
+    F --> Q{Retryable and budget remains?}
+    Q -- yes --> B[Compute backoff + jitter; set next_attempt_at]
+    B --> SC[Retry scheduler atomically queues retry + outbox]
+    SC --> O
+    Q -- no --> D[Persist DLQ, history intact]
+    D -.manual replay.-> B2[Reset attempt_count to 0,\nRETRY_WAIT immediately]
+    B2 --> SC
+
+    W -. crash: claimed, never acked .-> PEL[(Redis PEL:\nmessage stuck under dead consumer)]
+    PEL -. XAUTOCLAIM after min-idle .-> W2[Another worker reclaims\nand re-checks durable state]
+    R -. duplicate publish \nrelay crash after XAdd .-> W
+    S -. duplicate queue message \narrives after SUCCEEDED .-> X[Worker's durable re-check\nskips re-delivery; no-op]

@@ -1,0 +1,111 @@
+# TYPE webhook_events_created_total counter
+webhook_events_created_total 4801
+# TYPE webhook_events_rejected_total counter
+webhook_events_rejected_total 0
+# TYPE webhook_api_request_duration_seconds histogram
+webhook_api_request_duration_seconds_bucket{le="0.01"} 5942
+webhook_api_request_duration_seconds_bucket{le="0.05"} 6128
+webhook_api_request_duration_seconds_bucket{le="0.1"} 6129
+webhook_api_request_duration_seconds_bucket{le="0.25"} 6133
+webhook_api_request_duration_seconds_bucket{le="0.5"} 6134
+webhook_api_request_duration_seconds_bucket{le="1"} 6134
+webhook_api_request_duration_seconds_bucket{le="2.5"} 6134
+webhook_api_request_duration_seconds_bucket{le="5"} 6134
+webhook_api_request_duration_seconds_bucket{le="10"} 6134
+webhook_api_request_duration_seconds_bucket{le="+Inf"} 6134
+webhook_api_request_duration_seconds_sum 33.728878965
+webhook_api_request_duration_seconds_count 6134
+# TYPE webhook_delivery_attempts_total counter
+webhook_delivery_attempts_total 4801
+# TYPE webhook_delivery_success_total counter
+webhook_delivery_success_total 4801
+# TYPE webhook_delivery_failure_total counter
+webhook_delivery_failure_total 0
+# TYPE webhook_delivery_duration_seconds histogram
+webhook_delivery_duration_seconds_bucket{le="0.01"} 3000
+webhook_delivery_duration_seconds_bucket{le="0.05"} 3001
+webhook_delivery_duration_seconds_bucket{le="0.1"} 3001
+webhook_delivery_duration_seconds_bucket{le="0.25"} 3001
+webhook_delivery_duration_seconds_bucket{le="0.5"} 3001
+webhook_delivery_duration_seconds_bucket{le="1"} 4801
+webhook_delivery_duration_seconds_bucket{le="2.5"} 4801
+webhook_delivery_duration_seconds_bucket{le="5"} 4801
+webhook_delivery_duration_seconds_bucket{le="10"} 4801
+webhook_delivery_duration_seconds_bucket{le="+Inf"} 4801
+webhook_delivery_duration_seconds_sum 907.059
+webhook_delivery_duration_seconds_count 4801
+# TYPE webhook_delivery_retries_total counter
+webhook_delivery_retries_total 0
+# TYPE webhook_delivery_dlq_total counter
+webhook_delivery_dlq_total 0
+# TYPE webhook_target_capacity_deferrals_total counter
+webhook_target_capacity_deferrals_total 440
+# TYPE webhook_history_events_pruned_total counter
+webhook_history_events_pruned_total 0
+# TYPE webhook_history_cleanup_errors_total counter
+webhook_history_cleanup_errors_total 0
+# TYPE webhook_queue_depth gauge
+webhook_queue_depth 0
+# TYPE webhook_queue_unread gauge
+webhook_queue_unread 0
+# TYPE webhook_events_pending gauge
+webhook_events_pending 0
+# TYPE webhook_events_dlq gauge
+webhook_events_dlq 0
+# TYPE webhook_delivery_in_flight gauge
+webhook_delivery_in_flight 0
+# TYPE webhook_dependency_errors_total counter
+webhook_dependency_errors_total{dependency="postgres"} 0
+webhook_dependency_errors_total{dependency="redis"} 0
+# TYPE webhook_outbox_pending gauge
+webhook_outbox_pending 0
+# TYPE webhook_worker_active gauge
+webhook_worker_active 4
+# TYPE webhook_worker_busy_total counter
+webhook_worker_busy_total 4801
+# TYPE webhook_circuit_open_total counter
+webhook_circuit_open_total 0
+# TYPE webhook_circuit_state gauge
+webhook_circuit_state{state="CLOSED"} 5
+webhook_circuit_state{state="OPEN"} 0
+webhook_circuit_state{state="HALF_OPEN"} 0
+# TYPE webhook_recovery_duration_seconds histogram
+webhook_recovery_duration_seconds_bucket{le="0.01"} 0
+webhook_recovery_duration_seconds_bucket{le="0.05"} 0
+webhook_recovery_duration_seconds_bucket{le="0.1"} 0
+webhook_recovery_duration_seconds_bucket{le="0.25"} 0
+webhook_recovery_duration_seconds_bucket{le="0.5"} 0
+webhook_recovery_duration_seconds_bucket{le="1"} 0
+webhook_recovery_duration_seconds_bucket{le="2.5"} 0
+webhook_recovery_duration_seconds_bucket{le="5"} 0
+webhook_recovery_duration_seconds_bucket{le="10"} 0
+webhook_recovery_duration_seconds_bucket{le="+Inf"} 0
+webhook_recovery_duration_seconds_sum 0
+webhook_recovery_duration_seconds_count 0
+# TYPE webhook_postgres_check_duration_seconds histogram
+webhook_postgres_check_duration_seconds_bucket{le="0.01"} 312
+webhook_postgres_check_duration_seconds_bucket{le="0.05"} 314
+webhook_postgres_check_duration_seconds_bucket{le="0.1"} 314
+webhook_postgres_check_duration_seconds_bucket{le="0.25"} 314
+webhook_postgres_check_duration_seconds_bucket{le="0.5"} 314
+webhook_postgres_check_duration_seconds_bucket{le="1"} 314
+webhook_postgres_check_duration_seconds_bucket{le="2.5"} 314
+webhook_postgres_check_duration_seconds_bucket{le="5"} 314
+webhook_postgres_check_duration_seconds_bucket{le="10"} 314
+webhook_postgres_check_duration_seconds_bucket{le="+Inf"} 314
+webhook_postgres_check_duration_seconds_sum 0.755730997
+webhook_postgres_check_duration_seconds_count 314
+# TYPE webhook_redis_check_duration_seconds histogram
+webhook_redis_check_duration_seconds_bucket{le="0.01"} 314
+webhook_redis_check_duration_seconds_bucket{le="0.05"} 314
+webhook_redis_check_duration_seconds_bucket{le="0.1"} 314
+webhook_redis_check_duration_seconds_bucket{le="0.25"} 314
+webhook_redis_check_duration_seconds_bucket{le="0.5"} 314
+webhook_redis_check_duration_seconds_bucket{le="1"} 314
+webhook_redis_check_duration_seconds_bucket{le="2.5"} 314
+webhook_redis_check_duration_seconds_bucket{le="5"} 314
+webhook_redis_check_duration_seconds_bucket{le="10"} 314
+webhook_redis_check_duration_seconds_bucket{le="+Inf"} 314
+webhook_redis_check_duration_seconds_sum 0.354443703
+webhook_redis_check_duration_seconds_count 314
+

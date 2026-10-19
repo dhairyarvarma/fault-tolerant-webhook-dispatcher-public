@@ -1,0 +1,31 @@
+{
+  "rollback_image": [
+    "[{\"ID\":\"sha256:0961b9fb756d04b064785adc4299ef37312e82a212ca2469b0d92d8b2c873a03\",\"ContainerName\":\"verify-20261017100129-616dc327-api-1\",\"Repository\":\"webhook-dispatcher\",\"Tag\":\"verify-verify-20261017094750-321472cf\",\"Platform\":\"linux/amd64\",\"Size\":43807620,\"Created\":\"2026-10-17T08:34:56.820110602Z\",\"LastTagTime\":\"2026-10-17T09:48:40.431001373Z\"}]",
+    ""
+  ],
+  "scope": "Same-schema local image rollback; no schema downgrade or cloud rollout claimed.",
+  "status": "passed",
+  "forward_image": [
+    "[{\"ID\":\"sha256:39fa47915528e33722bbc77806fe7bc84d7fab9eac358e88c281f40033c177e4\",\"ContainerName\":\"verify-20261017100129-616dc327-api-1\",\"Repository\":\"webhook-dispatcher\",\"Tag\":\"verify-verify-20261017100129-616dc327\",\"Platform\":\"linux/amd64\",\"Size\":43809110,\"Created\":\"2026-10-17T09:55:06.647702435Z\",\"LastTagTime\":\"2026-10-17T10:02:27.54760657Z\"}]",
+    ""
+  ],
+  "forward_event": "a6ac24e5-8650-40f5-a267-b50db47831bf",
+  "rollback_event": "3059e7e6-7e94-4ca5-b045-4189b99cf730",
+  "source_fingerprints": {
+    "targets": "4a6a13bc338020537bf691b467a59917",
+    "events": "3b8218bed1bf6a64c647d2c9a398bb6c",
+    "delivery_attempts": "23c4252345693c00ec6f26039a47f889",
+    "outbox_messages": "c355019ecc20097b83386ee7c43bda06",
+    "schema_migrations": "be9ac20c5a09c86fc9e7da30b434752b"
+  },
+  "at": "2026-10-17T10:18:27.733172Z",
+  "rollback_fingerprints": {
+    "targets": "4a6a13bc338020537bf691b467a59917",
+    "events": "3b8218bed1bf6a64c647d2c9a398bb6c",
+    "delivery_attempts": "23c4252345693c00ec6f26039a47f889",
+    "outbox_messages": "c355019ecc20097b83386ee7c43bda06",
+    "schema_migrations": "be9ac20c5a09c86fc9e7da30b434752b"
+  },
+  "run": "verify-20261017100129-616dc327",
+  "prior_event": "00070139-d5d0-4011-a85d-e2e5ac068346"
+}

@@ -1,0 +1,71 @@
+package store
+
+import (
+	"context"
+	"database/sql"
+	"fmt"
+)
+
+type OutboxStore struct {
+	db *sql.DB
+}
+
+func NewOutboxStore(db *sql.DB) *OutboxStore {
+	return &OutboxStore{db: db}
+}
+
+// CountUnpublished returns the durable outbox backlog waiting for Redis
+// publication. It is used only for a gauge; the relay still fetches rows
+// normally before publishing them.
+func (s *OutboxStore) CountUnpublished(ctx context.Context) (int64, error) {
+	var count int64
+	if err := s.db.QueryRowContext(ctx, `SELECT count(*) FROM outbox_messages WHERE published_at IS NULL`).Scan(&count); err != nil {
+		return 0, fmt.Errorf("count unpublished outbox rows: %w", err)
+	}
+	return count, nil
+}
+
+// FetchUnpublished returns up to limit unpublished outbox rows, oldest
+// first.
+//
+// Concurrent relays may publish duplicates, as allowed by the outbox protocol.
+// Durable event rechecks and delivery leases prevent concurrent logical work.
+// shortcut: duplicate publication is not deduplicated here; add outbox claims
+// only if measured transport amplification justifies their recovery protocol.
+func (s *OutboxStore) FetchUnpublished(ctx context.Context, limit int) ([]OutboxMessage, error) {
+	rows, err := s.db.QueryContext(ctx, `
+		SELECT id, event_id, created_at, published_at, publish_attempts, last_error
+		FROM outbox_messages
+		WHERE published_at IS NULL
+		ORDER BY created_at
+		LIMIT $1
+	`, limit)
+	if err != nil {
+		return nil, fmt.Errorf("select unpublished outbox rows: %w", err)
+	}
+	defer rows.Close()
+
+	messages := make([]OutboxMessage, 0)
+	for rows.Next() {
+		var m OutboxMessage
+		if err := rows.Scan(&m.ID, &m.EventID, &m.CreatedAt, &m.PublishedAt, &m.PublishAttempts, &m.LastError); err != nil {
+			return nil, fmt.Errorf("scan outbox row: %w", err)
+		}
+		messages = append(messages, m)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("iterate outbox rows: %w", err)
+	}
+	return messages, nil
+}
+
+// MarkPublished records that an outbox row's event ID has been published to
+// the queue. Safe to call more than once for the same row.
+func (s *OutboxStore) MarkPublished(ctx context.Context, id string) error {
+	_, err := s.db.ExecContext(ctx,
+		`UPDATE outbox_messages SET published_at = now() WHERE id = $1`, id)
+	if err != nil {
+		return fmt.Errorf("mark outbox row published: %w", err)
+	}
+	return nil
+}

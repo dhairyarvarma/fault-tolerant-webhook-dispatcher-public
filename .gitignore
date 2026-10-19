@@ -1,0 +1,31 @@
+# Environment / secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.crt
+
+# Go
+bin/
+dist/
+coverage.out
+coverage.html
+
+# IDE
+.vscode/*.local.json
+.idea/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test / benchmark outputs
+reports/generated/
+bench/results/
+logs/
+
+# Temporary files
+.tmp/
+*.swp

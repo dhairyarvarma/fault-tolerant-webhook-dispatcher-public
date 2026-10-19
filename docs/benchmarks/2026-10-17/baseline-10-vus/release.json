@@ -1,0 +1,103 @@
+{
+  "docker_host": {
+    "cpus": 20,
+    "memory_bytes": 8133451776,
+    "os": "Docker Desktop"
+  },
+  "commit": "83606576133a4f3d07e99d6ff3c07e6a32cf904b",
+  "go": "go version go1.27.2 windows/amd64",
+  "run": "verify-20261017084759-4ef69f48",
+  "started_at": "2026-10-17T08:47:59.0838064Z",
+  "docker": "29.8.0",
+  "finished_at": "2026-10-17T08:52:01.7996387Z",
+  "status": "failed",
+  "host_os": "Microsoft Windows 10.0.26200",
+  "cpu": [
+    {
+      "Name": "13th Gen Intel(R) Core(TM) i9-13900H",
+      "NumberOfCores": 14,
+      "NumberOfLogicalProcessors": 20
+    }
+  ],
+  "dirty": true,
+  "images": [
+    "[{\"ID\":\"sha256:858f009f9709ce576febc734aa78b8f6d624b82571f9ddb6bda4377c833b3499\",\"ContainerName\":\"verify-20261017084759-4ef69f48-redis-1\",\"Repository\":\"redis\",\"Tag\":\"7-alpine\",\"Platform\":\"linux/amd64\",\"Size\":57300241,\"Created\":\"2026-09-17T21:32:46.989770417Z\",\"LastTagTime\":\"2026-10-16T03:20:03.528274168Z\"},{\"ID\":\"sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea\",\"ContainerName\":\"verify-20261017084759-4ef69f48-postgres-1\",\"Repository\":\"postgres\",\"Tag\":\"16-alpine\",\"Platform\":\"linux/amd64\",\"Size\":419072015,\"Created\":\"2026-09-17T21:31:24.32976807Z\",\"LastTagTime\":\"2026-10-03T13:41:34.662503908Z\"},{\"ID\":\"sha256:a9161611384cf1c3b1eae6a006a6905ee1ed5d1ef84fd2be66cc2ab3af815850\",\"ContainerName\":\"verify-20261017084759-4ef69f48-target-simulator-1\",\"Repository\":\"webhook-targetsim\",\"Tag\":\"verify-verify-20261017084759-4ef69f48\",\"Platform\":\"linux/amd64\",\"Size\":29375048,\"Created\":\"2026-10-17T08:44:47.977172899Z\",\"LastTagTime\":\"2026-10-17T08:48:38.264108718Z\"},{\"ID\":\"sha256:8ef37b9480d2fe97484182a9629446ed80aafb6e89ff64dae91dfd74f5b4e79a\",\"ContainerName\":\"verify-20261017084759-4ef69f48-api-1\",\"Repository\":\"webhook-dispatcher\",\"Tag\":\"verify-verify-20261017084759-4ef69f48\",\"Platform\":\"linux/amd64\",\"Size\":43807620,\"Created\":\"2026-10-17T08:34:56.820110602Z\",\"LastTagTime\":\"2026-10-17T08:48:55.806507757Z\"},{\"ID\":\"sha256:dbbc38ea21103cefb50396340cd88afec779c7e070b0a7bf5a75b4ce46651d3f\",\"ContainerName\":\"verify-20261017084759-4ef69f48-grafana-1\",\"Repository\":\"grafana/grafana\",\"Tag\":\"latest\",\"Platform\":\"linux/amd64\",\"Size\":1938171456,\"Created\":\"2026-10-12T12:57:33Z\",\"LastTagTime\":\"2026-10-16T14:54:54.104294055Z\"},{\"ID\":\"sha256:efd719c99d83b060d9daefdcf00360461adf279f45ef5391f8d111892118753e\",\"ContainerName\":\"verify-20261017084759-4ef69f48-prometheus-1\",\"Repository\":\"prom/prometheus\",\"Tag\":\"latest\",\"Platform\":\"linux/amd64\",\"Size\":381253472,\"Created\":\"2026-09-25T08:06:23.137236845Z\",\"LastTagTime\":\"2026-10-16T14:54:01.645991142Z\"}]",
+    ""
+  ],
+  "checks": [
+    {
+      "detail": {
+        "api": "http://127.0.0.1:56073",
+        "uid": "65532"
+      },
+      "name": "container startup, readiness, non-root and CA bundle",
+      "at": "2026-10-17T08:49:09.8340534Z"
+    },
+    {
+      "detail": "Signing receiver test is native-only; skipped here.",
+      "name": "container HTTP acceptance and narrated showcase",
+      "at": "2026-10-17T08:49:26.2382388Z"
+    },
+    {
+      "detail": [
+        {
+          "id": 3694388584488960,
+          "uid": "webhook-dispatcher",
+          "orgId": 1,
+          "title": "Webhook Dispatcher",
+          "uri": "db/webhook-dispatcher",
+          "url": "/d/webhook-dispatcher/webhook-dispatcher",
+          "slug": "",
+          "type": "dash-db",
+          "tags": [
+            "delivery",
+            "webhook"
+          ],
+          "isStarred": false,
+          "sortMeta": 0,
+          "isDeleted": false
+        }
+      ],
+      "name": "live Prometheus scrape and Grafana dashboard provisioning",
+      "at": "2026-10-17T08:49:27.6279598Z"
+    },
+    {
+      "detail": {
+        "restored": {
+          "targets": "7533864bede704e06b12dcebf51c78ae",
+          "events": "93202156dde5f3fd1b94639d2a809340",
+          "delivery_attempts": "8c1157d97ab256fe4d91be654c715f05",
+          "outbox_messages": "9a25bc023e8db330f44d8f7c4e047bf1",
+          "schema_migrations": "9cfe3173ab3ea0ec48bf6bf1eff30de8"
+        },
+        "event": "aaea1727-824b-4038-8b2f-23cdc599f425",
+        "source": {
+          "targets": "7533864bede704e06b12dcebf51c78ae",
+          "events": "93202156dde5f3fd1b94639d2a809340",
+          "delivery_attempts": "8c1157d97ab256fe4d91be654c715f05",
+          "outbox_messages": "9a25bc023e8db330f44d8f7c4e047bf1",
+          "schema_migrations": "9cfe3173ab3ea0ec48bf6bf1eff30de8"
+        }
+      },
+      "name": "backup/restore preserves all five table fingerprints and signing-key usability",
+      "at": "2026-10-17T08:49:38.9608889Z"
+    },
+    {
+      "detail": {
+        "event": "bc9f345c-556f-448f-bb6b-6e5f997f9878",
+        "restart_to_success_seconds": 3.8667573
+      },
+      "name": "Redis restart: accepted durable work eventually succeeds",
+      "at": "2026-10-17T08:49:48.6441144Z"
+    },
+    {
+      "detail": {
+        "event": "59d196b3-c615-4311-ad03-04253fc4b499",
+        "definition": "Includes restart and polling; proves claim recovery, not exact HTTP-success crash timing.",
+        "kill_command_to_success_seconds": 61.6540983
+      },
+      "name": "SIGKILL after observed claim: durable event recovered",
+      "at": "2026-10-17T08:50:51.1062313Z"
+    }
+  ]
+}

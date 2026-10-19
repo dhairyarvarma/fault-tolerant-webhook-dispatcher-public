@@ -1,0 +1,411 @@
+openapi: 3.1.0
+info:
+  title: Fault-Tolerant Webhook Delivery Engine API
+  version: 0.1.0
+  description: |
+    API contract for durable asynchronous webhook event creation and delivery.
+    Delivery semantics are at-least-once with idempotency protection.
+    Optional history retention is disabled by default. When enabled (age >=24h),
+    successful/canceled events and attempts may be removed after that window;
+    reads then return 404 and reused caller keys may create new events.
+    Dead-letter events remain available for replay.
+servers:
+  - url: http://localhost:8080
+security:
+  - ApiKeyAuth: []
+paths:
+  /healthz:
+    get:
+      security: []
+      summary: Process liveness
+      responses:
+        '200':
+          description: Process is alive
+  /readyz:
+    get:
+      security: []
+      summary: Dependency readiness
+      responses:
+        '200':
+          description: Ready
+        '503':
+          description: Not ready
+  /api/v1/targets:
+    post:
+      summary: Create target
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTargetRequest'
+      responses:
+        '201':
+          description: Target created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Target'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+  /api/v1/targets/{target_id}:
+    parameters:
+      - $ref: '#/components/parameters/TargetId'
+    get:
+      summary: Get target
+      responses:
+        '200':
+          description: Target
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Target'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+    delete:
+      summary: Disable target
+      responses:
+        '204':
+          description: Target disabled
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+  /api/v1/targets/{target_id}/events:
+    parameters:
+      - $ref: '#/components/parameters/TargetId'
+      - in: header
+        name: Idempotency-Key
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 256
+    post:
+      summary: Create webhook event
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateEventRequest'
+      responses:
+        '201':
+          description: Event created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Event'
+        '400':
+          description: Malformed JSON body, or Idempotency-Key header missing
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: Target is disabled
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: >-
+            An event already exists for this (target_id, Idempotency-Key).
+            The response body includes a top-level event_id field
+            referencing the existing event, in addition to the standard
+            error envelope.
+        '413':
+          description: Payload too large
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+        '429':
+          description: >-
+            Admission control (EVENTS_MAX_PENDING_EVENTS) rejected the create:
+            the durable non-terminal event count is at or above the configured
+            bound. Includes a Retry-After header. Only when the limit is
+            configured (default disabled).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/v1/events:
+    get:
+      summary: List events by status
+      parameters:
+        - in: query
+          name: status
+          required: true
+          schema:
+            type: string
+            enum: [PENDING, QUEUED, RETRY_WAIT, SUCCEEDED, DLQ, CANCELED]
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 50
+      responses:
+        '200':
+          description: Newest events with the requested status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  events:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Event'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+  /api/v1/events/{event_id}:
+    parameters:
+      - $ref: '#/components/parameters/EventId'
+    get:
+      summary: Get event
+      responses:
+        '200':
+          description: Event
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Event'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+  /api/v1/events/{event_id}/attempts:
+    parameters:
+      - $ref: '#/components/parameters/EventId'
+    get:
+      summary: Get delivery attempts
+      responses:
+        '200':
+          description: Delivery attempt history
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [event_id, attempts]
+                properties:
+                  event_id:
+                    type: string
+                    format: uuid
+                  attempts:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/DeliveryAttempt'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+  /api/v1/events/{event_id}/retry:
+    parameters:
+      - $ref: '#/components/parameters/EventId'
+    post:
+      summary: Replay an eligible dead-letter event
+      responses:
+        '200':
+          description: Event reset for a fresh delivery attempt
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Event'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: Target is disabled
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Event is not eligible for replay (not currently DLQ)
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+  /metrics:
+    get:
+      security: []
+      summary: Prometheus metrics
+      responses:
+        '200':
+          description: Metrics
+          content:
+            text/plain:
+              schema:
+                type: string
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+  parameters:
+    TargetId:
+      in: path
+      name: target_id
+      required: true
+      schema:
+        type: string
+        format: uuid
+    EventId:
+      in: path
+      name: event_id
+      required: true
+      schema:
+        type: string
+        format: uuid
+  schemas:
+    CreateTargetRequest:
+      type: object
+      required: [name, url]
+      properties:
+        name:
+          type: string
+          maxLength: 200
+        url:
+          type: string
+          format: uri
+        secret:
+          type: string
+          description: Optional literal UTF-8 HMAC signing key. Encrypted at rest; never returned by the API.
+    Target:
+      type: object
+      required: [target_id, name, url, enabled, created_at, updated_at]
+      properties:
+        target_id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        url:
+          type: string
+        enabled:
+          type: boolean
+        circuit_state:
+          type: string
+          enum: [CLOSED, OPEN, HALF_OPEN]
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    CreateEventRequest:
+      type: object
+      required: [payload]
+      properties:
+        payload:
+          description: Any non-null JSON value, delivered as raw JSON bytes.
+          not:
+            type: 'null'
+    Event:
+      type: object
+      required: [event_id, target_id, status, created_at]
+      properties:
+        event_id:
+          type: string
+          format: uuid
+        target_id:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: [PENDING, QUEUED, RETRY_WAIT, SUCCEEDED, DLQ, CANCELED]
+        attempt_count:
+          type: integer
+          minimum: 0
+        next_attempt_at:
+          type: string
+          format: date-time
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        completed_at:
+          type: string
+          format: date-time
+          nullable: true
+    DeliveryAttempt:
+      type: object
+      properties:
+        attempt_id:
+          type: string
+          format: uuid
+        attempt_number:
+          type: integer
+        outcome:
+          type: string
+        http_status:
+          type: integer
+          nullable: true
+        duration_ms:
+          type: integer
+        started_at:
+          type: string
+          format: date-time
+        finished_at:
+          type: string
+          format: date-time
+    Error:
+      type: object
+      properties:
+        error:
+          type: object
+          required: [code, message, request_id]
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+            request_id:
+              type: string
+  responses:
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    UnprocessableEntity:
+      description: Semantic validation failure (e.g. invalid/disallowed URL, missing required field)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Unauthorized:
+      description: Missing or incorrect X-API-Key (only enforced when AUTH_ENABLED=true; always required outside APP_ENV=development)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'

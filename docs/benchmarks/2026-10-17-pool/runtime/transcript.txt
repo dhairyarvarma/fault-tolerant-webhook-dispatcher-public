@@ -1,0 +1,179 @@
+**********************
+PowerShell transcript start
+Start time: 20261017154647
+Username: PUBLIC_HOST\PUBLIC_USER
+RunAs User: PUBLIC_HOST\PUBLIC_USER
+Configuration Name: 
+Machine: PUBLIC_HOST (Microsoft Windows NT 10.0.26200.0)
+Host Application: C:\Users\PUBLIC_USER\.cache\codex-runtimes\codex-primary-runtime\dependencies\native\powershell\pwsh.dll -Command try { [Console]::OutputEncoding=[System.Text.Encoding]::UTF8 } catch {}
+$env:GOCACHE=Join-Path (Get-Location) '.tmp/gocache'; ./scripts/verify-release.ps1 -KeepStack
+Process ID: 26748
+PSVersion: 7.6.5
+PSEdition: Core
+GitCommitId: 7.6.5
+OS: Microsoft Windows 10.0.26200
+Platform: Win32NT
+PSCompatibleVersions: 1.0, 2.0, 3.0, 4.0, 5.0, 5.1, 6.0, 7.0
+PSRemotingProtocolVersion: 2.4
+SerializationVersion: 1.1.0.1
+WSManStackVersion: 3.0
+**********************
+#1 [internal] load local bake definitions
+#1 reading from stdin 1.44kB done
+#1 DONE 0.0s
+
+#2 [target-simulator internal] load build definition from Dockerfile
+#2 transferring dockerfile: 379B 0.0s done
+#2 DONE 0.1s
+
+#3 [target-simulator internal] load metadata for docker.io/library/golang:1.27.2-alpine
+#3 DONE 0.1s
+
+#4 [api internal] load metadata for docker.io/library/alpine:3.24
+#4 ...
+
+#5 [auth] library/alpine:pull token for registry-1.docker.io
+#5 DONE 0.0s
+
+#4 [api internal] load metadata for docker.io/library/alpine:3.24
+#4 DONE 5.7s
+
+#6 [api internal] load .dockerignore
+#6 transferring context: 122B 0.0s done
+#6 DONE 0.0s
+
+#7 [target-simulator internal] load build context
+#7 DONE 0.0s
+
+#8 [target-simulator build 1/6] FROM docker.io/library/golang:1.27.2-alpine@sha256:f92b6ef800e499660581efdabdf25d9d817a9d124eaf900924f0504e7e27e12d
+#8 resolve docker.io/library/golang:1.27.2-alpine@sha256:f92b6ef800e499660581efdabdf25d9d817a9d124eaf900924f0504e7e27e12d 0.1s done
+#8 resolve docker.io/library/golang:1.27.2-alpine@sha256:f92b6ef800e499660581efdabdf25d9d817a9d124eaf900924f0504e7e27e12d 0.1s done
+#8 DONE 0.1s
+
+#9 [api stage-1 1/3] FROM docker.io/library/alpine:3.24@sha256:294b683cb724975bec92580e1e685676bd4b50bda910ddb8c51d4cabeaec77e6
+#9 resolve docker.io/library/alpine:3.24@sha256:294b683cb724975bec92580e1e685676bd4b50bda910ddb8c51d4cabeaec77e6 0.1s done
+#9 DONE 0.1s
+
+#7 [target-simulator internal] load build context
+#7 transferring context: 17.59MB 1.6s done
+#7 DONE 1.6s
+
+#10 [target-simulator build 2/6] WORKDIR /src
+#10 CACHED
+
+#11 [target-simulator build 3/6] COPY go.mod go.sum ./
+#11 CACHED
+
+#12 [api build 4/6] RUN go mod download
+#12 CACHED
+
+#13 [api build 5/6] COPY . .
+#13 DONE 0.8s
+
+#14 [target-simulator stage-1 2/3] RUN apk add --no-cache ca-certificates
+#14 2.101 (1/1) Installing ca-certificates (20260909-r0)
+#14 2.199 Executing busybox-1.37.0-r31.trigger
+#14 2.258 Executing ca-certificates-20260909-r0.trigger
+#14 2.433 OK: 8413 KiB in 17 packages
+#14 DONE 2.5s
+
+#13 [target-simulator build 5/6] COPY . .
+#13 DONE 0.8s
+
+#15 [target-simulator build 6/6] RUN CGO_ENABLED=0 go build -trimpath -o /out/app ./cmd/targetsim
+#15 ...
+
+#14 [api stage-1 2/3] RUN apk add --no-cache ca-certificates
+#14 DONE 2.5s
+
+#16 [api build 6/6] RUN CGO_ENABLED=0 go build -trimpath -o /out/app ./cmd/server
+#16 ...
+
+#15 [target-simulator build 6/6] RUN CGO_ENABLED=0 go build -trimpath -o /out/app ./cmd/targetsim
+#15 DONE 28.6s
+
+#17 [target-simulator stage-1 3/3] COPY --from=build /out/app /usr/local/bin/app
+#17 DONE 0.4s
+
+#16 [api build 6/6] RUN CGO_ENABLED=0 go build -trimpath -o /out/app ./cmd/server
+#16 ...
+
+#18 [target-simulator] exporting to image
+#18 exporting layers
+#18 exporting layers 1.2s done
+#18 exporting manifest sha256:a2d3e058274085fc861341edef3903ce4e913d5d45ca8e2e8e8e5e8f2d6d8167 0.0s done
+#18 exporting config sha256:faacbb1cbdf54706d3c9fb47ac03ad0c64bd7de0f10e30fd7d2d00f16141a737 0.0s done
+#18 exporting attestation manifest sha256:b8daef3b058ceab5517d66eca06750b065cbed63b0c0ea208332ddfe31a92e47
+#18 exporting attestation manifest sha256:b8daef3b058ceab5517d66eca06750b065cbed63b0c0ea208332ddfe31a92e47 0.0s done
+#18 exporting manifest list sha256:b9f0bacf499a9a706bb56e52a94202123fa95dacf49f00dde1bf05219091779e 0.0s done
+#18 naming to docker.io/library/webhook-targetsim:verify-verify-20261017101647-284f1392 done
+#18 unpacking to docker.io/library/webhook-targetsim:verify-verify-20261017101647-284f1392
+#18 unpacking to docker.io/library/webhook-targetsim:verify-verify-20261017101647-284f1392 0.3s done
+#18 DONE 1.8s
+
+#16 [api build 6/6] RUN CGO_ENABLED=0 go build -trimpath -o /out/app ./cmd/server
+#16 ...
+
+#19 [target-simulator] resolving provenance for metadata file
+#19 DONE 0.1s
+
+#16 [api build 6/6] RUN CGO_ENABLED=0 go build -trimpath -o /out/app ./cmd/server
+#16 DONE 43.8s
+
+#20 [api stage-1 3/3] COPY --from=build /out/app /usr/local/bin/app
+#20 DONE 0.1s
+
+#21 [api] exporting to image
+#21 exporting layers
+#21 exporting layers 1.7s done
+#21 exporting manifest sha256:7b06fc97261c55a5b139e21ca55327be563470106a6f6b292422b4f14a9eb742 0.0s done
+#21 exporting config sha256:08aa14eb6484c3baa4a0a0b8ae333724a5dc72181f55019a22c7e6f4ebe495c8 0.0s done
+#21 exporting attestation manifest sha256:780c489cc1559ec6afcbd3db1ca82be909d72850a3785dd0a8d65058d7f1c5c2 0.0s done
+#21 exporting manifest list sha256:145d0b53c5705920fc5ca96bfcc0a748a4218dc2182d38e9aa2553acc4d51d65
+#21 exporting manifest list sha256:145d0b53c5705920fc5ca96bfcc0a748a4218dc2182d38e9aa2553acc4d51d65 0.0s done
+#21 naming to docker.io/library/webhook-dispatcher:verify-verify-20261017101647-284f1392 done
+#21 unpacking to docker.io/library/webhook-dispatcher:verify-verify-20261017101647-284f1392
+#21 unpacking to docker.io/library/webhook-dispatcher:verify-verify-20261017101647-284f1392 0.3s done
+#21 DONE 2.2s
+
+#22 [api] resolving provenance for metadata file
+#22 DONE 0.0s
+PASS: container startup, readiness, non-root and CA bundle
+=== RUN   TestE2E_DeliveryLifecycle
+--- PASS: TestE2E_DeliveryLifecycle (0.30s)
+=== RUN   TestE2E_IdempotencyConflict
+--- PASS: TestE2E_IdempotencyConflict (0.03s)
+=== RUN   TestE2E_ReplayNonDLQIsConflict
+--- PASS: TestE2E_ReplayNonDLQIsConflict (0.29s)
+=== RUN   TestE2E_DLQReplayRetainsHistory
+--- PASS: TestE2E_DLQReplayRetainsHistory (0.56s)
+=== RUN   TestE2E_DisabledTargetRejectsNewEvents
+--- PASS: TestE2E_DisabledTargetRejectsNewEvents (0.02s)
+=== RUN   TestE2E_AuthenticationAndHealth
+--- PASS: TestE2E_AuthenticationAndHealth (0.01s)
+=== RUN   TestE2E_ConcurrentIdempotencyCreatesOneLogicalEvent
+--- PASS: TestE2E_ConcurrentIdempotencyCreatesOneLogicalEvent (0.06s)
+=== RUN   TestE2E_SignedDeliveryPassesReceiverVerification
+    e2e_test.go:302: TEST_SIGNING_TARGET_URL required
+--- SKIP: TestE2E_SignedDeliveryPassesReceiverVerification (0.00s)
+=== RUN   TestE2E_Showcase
+    showcase_test.go:40: 1. Accept an event asynchronously and inspect its durable outcome.
+    showcase_test.go:44:    event=5a78a7f1-cd5d-4ddc-b407-6b5d33ad81d2 -> SUCCEEDED
+    showcase_test.go:52: 2. Reusing the key returns 409 and the SAME event ID; no second logical event.
+    showcase_test.go:61: 3. event=d0f1a31b-a5a5-4eda-8021-350c98ae6597 -> DLQ after 3 HTTP 500 attempts; circuit=OPEN.
+    showcase_test.go:67: 4. New event is deferred with ZERO attempts while the circuit is open.
+    showcase_test.go:70: 5. After cooldown, a successful probe closes the circuit; deferred event succeeds.
+    showcase_test.go:86: 6. Replay succeeds with the SAME event ID and all 4 historical attempts retained.
+    showcase_test.go:91: 7. Metrics are exposed. At-least-once delivery still permits duplicate HTTP after a crash.
+--- PASS: TestE2E_Showcase (6.53s)
+PASS
+ok  	github.com/dhairyarajvarma/webhook-dispatcher/test/e2e	11.288s
+PASS: container HTTP acceptance and narrated showcase
+PASS: live Prometheus scrape and Grafana dashboard provisioning
+PASS: backup/restore preserves all five table fingerprints and signing-key usability
+PASS: Redis restart: accepted durable work eventually succeeds
+PASS: SIGKILL after observed claim: durable event recovered
+**********************
+PowerShell transcript end
+End time: 20261017154942
+**********************

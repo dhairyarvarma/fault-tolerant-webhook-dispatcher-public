@@ -1,0 +1,19 @@
+stateDiagram-v2
+    [*] --> PENDING
+    PENDING --> SUCCEEDED: worker delivers
+    PENDING --> RETRY_WAIT: retryable failure, attempts remain
+    PENDING --> DLQ: non-retryable failure, or attempts exhausted
+
+    RETRY_WAIT --> QUEUED: due retry + outbox committed atomically
+    QUEUED --> SUCCEEDED: worker delivers
+    QUEUED --> RETRY_WAIT: retryable failure, attempts remain
+    QUEUED --> DLQ: non-retryable failure, or attempts exhausted
+
+    DLQ --> RETRY_WAIT: manual replay (attempt_count reset to 0)
+
+    note right of PENDING
+        No separate DELIVERING state: a worker's
+        ownership lives in an expiring PostgreSQL
+        UUID lease. Redis pending messages are
+        transport hints - see DECISIONS.md #31.
+    end note

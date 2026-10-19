@@ -1,0 +1,24 @@
+{
+  "docker_host": {
+    "cpus": 20,
+    "memory_bytes": 8133451776,
+    "os": "Docker Desktop"
+  },
+  "docker": "29.8.0",
+  "status": "failed",
+  "commit": "0df04f7402aeeb51b31fcf94ae7e46cd66592138",
+  "checks": [],
+  "started_at": "2026-10-17T09:45:00.4632763Z",
+  "cpu": [
+    {
+      "Name": "13th Gen Intel(R) Core(TM) i9-13900H",
+      "NumberOfCores": 14,
+      "NumberOfLogicalProcessors": 20
+    }
+  ],
+  "finished_at": "2026-10-17T09:45:56.391326Z",
+  "go": "go version go1.27.2 windows/amd64",
+  "run": "verify-20261017094500-72505f1e",
+  "dirty": true,
+  "host_os": "Microsoft Windows 10.0.26200"
+}

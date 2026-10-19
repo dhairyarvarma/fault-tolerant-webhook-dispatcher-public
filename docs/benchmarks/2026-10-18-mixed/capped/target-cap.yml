@@ -1,0 +1,4 @@
+services:
+  api:
+    environment:
+      WORKER_TARGET_CONCURRENCY: '2'

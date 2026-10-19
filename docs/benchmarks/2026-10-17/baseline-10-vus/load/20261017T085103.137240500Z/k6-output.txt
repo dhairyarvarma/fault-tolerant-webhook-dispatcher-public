@@ -1,0 +1,150 @@
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: C:\Users\PUBLIC_USER\Desktop\falttol_webhook\webhook-dispatcher-ai-handoff\webhook-dispatcher-handoff\reports\generated\verify-20261017084759-4ef69f48\load\20261017T085103.137240500Z\script.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 100 max VUs, 1m0s max duration (incl. graceful stop):
+              * ingestion: 25.00 iterations/s for 30s (maxVUs: 10-100, gracefulStop: 30s)
+
+
+running (0m01.0s), 005/010 VUs, 20 complete and 0 interrupted iterations
+ingestion   [   3% ] 005/010 VUs  01.0s/30s  25.00 iters/s
+
+running (0m02.0s), 010/010 VUs, 40 complete and 0 interrupted iterations
+ingestion   [   7% ] 010/010 VUs  02.0s/30s  25.00 iters/s
+
+running (0m03.0s), 004/011 VUs, 70 complete and 0 interrupted iterations
+ingestion   [  10% ] 004/011 VUs  03.0s/30s  25.00 iters/s
+
+running (0m04.0s), 005/011 VUs, 94 complete and 0 interrupted iterations
+ingestion   [  13% ] 005/011 VUs  04.0s/30s  25.00 iters/s
+
+running (0m05.0s), 004/011 VUs, 120 complete and 0 interrupted iterations
+ingestion   [  17% ] 004/011 VUs  05.0s/30s  25.00 iters/s
+
+running (0m06.0s), 005/011 VUs, 144 complete and 0 interrupted iterations
+ingestion   [  20% ] 005/011 VUs  06.0s/30s  25.00 iters/s
+
+running (0m07.0s), 008/011 VUs, 166 complete and 0 interrupted iterations
+ingestion   [  23% ] 008/011 VUs  07.0s/30s  25.00 iters/s
+
+running (0m08.0s), 005/011 VUs, 194 complete and 0 interrupted iterations
+ingestion   [  27% ] 005/011 VUs  08.0s/30s  25.00 iters/s
+
+running (0m09.0s), 005/011 VUs, 219 complete and 0 interrupted iterations
+ingestion   [  30% ] 005/011 VUs  09.0s/30s  25.00 iters/s
+
+running (0m10.0s), 001/011 VUs, 248 complete and 0 interrupted iterations
+ingestion   [  33% ] 001/011 VUs  10.0s/30s  25.00 iters/s
+
+running (0m11.0s), 005/011 VUs, 269 complete and 0 interrupted iterations
+ingestion   [  37% ] 005/011 VUs  11.0s/30s  25.00 iters/s
+
+running (0m12.0s), 006/011 VUs, 293 complete and 0 interrupted iterations
+ingestion   [  40% ] 006/011 VUs  12.0s/30s  25.00 iters/s
+
+running (0m13.0s), 003/012 VUs, 320 complete and 0 interrupted iterations
+ingestion   [  43% ] 003/012 VUs  13.0s/30s  25.00 iters/s
+
+running (0m14.0s), 005/012 VUs, 343 complete and 0 interrupted iterations
+ingestion   [  47% ] 005/012 VUs  14.0s/30s  25.00 iters/s
+
+running (0m15.0s), 009/012 VUs, 364 complete and 0 interrupted iterations
+ingestion   [  50% ] 009/012 VUs  15.0s/30s  25.00 iters/s
+
+running (0m16.0s), 003/012 VUs, 395 complete and 0 interrupted iterations
+ingestion   [  53% ] 003/012 VUs  16.0s/30s  25.00 iters/s
+
+running (0m17.0s), 005/012 VUs, 418 complete and 0 interrupted iterations
+ingestion   [  57% ] 005/012 VUs  17.0s/30s  25.00 iters/s
+
+running (0m18.0s), 004/012 VUs, 444 complete and 0 interrupted iterations
+ingestion   [  60% ] 004/012 VUs  18.0s/30s  25.00 iters/s
+
+running (0m19.0s), 006/012 VUs, 467 complete and 0 interrupted iterations
+ingestion   [  63% ] 006/012 VUs  19.0s/30s  25.00 iters/s
+
+running (0m20.0s), 005/012 VUs, 493 complete and 0 interrupted iterations
+ingestion   [  67% ] 005/012 VUs  20.0s/30s  25.00 iters/s
+
+running (0m21.0s), 006/015 VUs, 514 complete and 0 interrupted iterations
+ingestion   [  70% ] 006/015 VUs  21.0s/30s  25.00 iters/s
+
+running (0m22.0s), 004/015 VUs, 541 complete and 0 interrupted iterations
+ingestion   [  73% ] 004/015 VUs  22.0s/30s  25.00 iters/s
+
+running (0m23.0s), 005/015 VUs, 565 complete and 0 interrupted iterations
+ingestion   [  77% ] 005/015 VUs  23.0s/30s  25.00 iters/s
+
+running (0m24.0s), 014/016 VUs, 580 complete and 0 interrupted iterations
+ingestion   [  80% ] 014/016 VUs  24.0s/30s  25.00 iters/s
+
+running (0m25.0s), 005/016 VUs, 614 complete and 0 interrupted iterations
+ingestion   [  83% ] 005/016 VUs  25.0s/30s  25.00 iters/s
+
+running (0m26.0s), 003/016 VUs, 641 complete and 0 interrupted iterations
+ingestion   [  87% ] 003/016 VUs  26.0s/30s  25.00 iters/s
+
+running (0m27.0s), 006/016 VUs, 663 complete and 0 interrupted iterations
+ingestion   [  90% ] 006/016 VUs  27.0s/30s  25.00 iters/s
+
+running (0m28.0s), 004/016 VUs, 690 complete and 0 interrupted iterations
+ingestion   [  93% ] 004/016 VUs  28.0s/30s  25.00 iters/s
+
+running (0m29.0s), 007/016 VUs, 712 complete and 0 interrupted iterations
+ingestion   [  97% ] 007/016 VUs  29.0s/30s  25.00 iters/s
+
+running (0m30.0s), 010/016 VUs, 734 complete and 0 interrupted iterations
+ingestion   [ 100% ] 010/016 VUs  30.0s/30s  25.00 iters/s
+
+
+  █ THRESHOLDS 
+
+    checks
+    ✓ 'rate==1' rate=100.00%
+
+    dropped_iterations
+    ✗ 'count==0' count=6
+
+    http_req_failed
+    ✓ 'rate==0' rate=0.00%
+
+
+  █ TOTAL RESULTS 
+
+    checks_total.......: 745     24.585021/s
+    checks_succeeded...: 100.00% 745 out of 745
+    checks_failed......: 0.00%   0 out of 745
+
+    ✓ event accepted
+
+    HTTP
+    http_req_duration..............: avg=201.21ms min=10.65ms med=161.06ms max=1.02s p(50)=161.06ms p(95)=528.63ms p(99)=671.13ms
+      { expected_response:true }...: avg=201.21ms min=10.65ms med=161.06ms max=1.02s p(50)=161.06ms p(95)=528.63ms p(99)=671.13ms
+    http_req_failed................: 0.00%  0 out of 745
+    http_reqs......................: 745    24.585021/s
+
+    EXECUTION
+    dropped_iterations.............: 6      0.198/s
+    iteration_duration.............: avg=201.66ms min=10.65ms med=161.19ms max=1.02s p(50)=161.19ms p(95)=528.76ms p(99)=671.36ms
+    iterations.....................: 745    24.585021/s
+    vus............................: 10     min=1        max=14
+    vus_max........................: 16     min=10       max=16
+
+    NETWORK
+    data_received..................: 289 kB 9.5 kB/s
+    data_sent......................: 246 kB 8.1 kB/s
+
+
+
+
+running (0m30.3s), 000/016 VUs, 745 complete and 0 interrupted iterations
+ingestion ✓ [ 100% ] 000/016 VUs  30s  25.00 iters/s
+time="2026-10-17T14:21:36+05:30" level=error msg="thresholds on metrics 'dropped_iterations' have been crossed"

@@ -1,0 +1,94 @@
+{
+  "annotations": {"list": []},
+  "editable": true,
+  "panels": [
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "fieldConfig": {"defaults": {"unit": "ops"}, "overrides": []},
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0},
+      "id": 1,
+      "targets": [{"expr": "rate(webhook_events_created_total[5m])", "refId": "A"}],
+      "title": "Event ingestion rate",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "fieldConfig": {"defaults": {"unit": "ops"}, "overrides": []},
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0},
+      "id": 2,
+      "targets": [
+        {"expr": "rate(webhook_delivery_success_total[5m])", "legendFormat": "success", "refId": "A"},
+        {"expr": "rate(webhook_delivery_failure_total[5m])", "legendFormat": "failure", "refId": "B"},
+        {"expr": "rate(webhook_delivery_retries_total[5m])", "legendFormat": "retry", "refId": "C"}
+      ],
+      "title": "Delivery outcomes",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "fieldConfig": {"defaults": {"unit": "short"}, "overrides": []},
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8},
+      "id": 3,
+      "targets": [
+        {"expr": "webhook_outbox_pending", "legendFormat": "outbox", "refId": "A"},
+        {"expr": "webhook_queue_depth", "legendFormat": "claimed messages", "refId": "B"},
+        {"expr": "webhook_queue_unread", "legendFormat": "unread messages", "refId": "C"},
+        {"expr": "webhook_events_pending", "legendFormat": "durable unfinished events", "refId": "D"}
+      ],
+      "title": "Queue pressure",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "fieldConfig": {"defaults": {"unit": "short"}, "overrides": []},
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8},
+      "id": 4,
+      "targets": [
+        {"expr": "webhook_worker_active", "legendFormat": "active workers", "refId": "A"},
+        {"expr": "rate(webhook_circuit_open_total[5m])", "legendFormat": "circuit-open decisions", "refId": "B"},
+        {"expr": "webhook_circuit_state{state=\"OPEN\"}", "legendFormat": "open targets", "refId": "C"},
+        {"expr": "webhook_events_dlq", "legendFormat": "current DLQ events", "refId": "D"},
+        {"expr": "webhook_delivery_in_flight", "legendFormat": "HTTP in flight", "refId": "E"}
+      ],
+      "title": "Resilience state",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "fieldConfig": {"defaults": {"unit": "s"}, "overrides": []},
+      "gridPos": {"h": 8, "w": 24, "x": 0, "y": 16},
+      "id": 5,
+      "targets": [
+        {"expr": "histogram_quantile(0.95, sum by (le) (rate(webhook_api_request_duration_seconds_bucket[5m])))", "legendFormat": "API p95", "refId": "A"},
+        {"expr": "histogram_quantile(0.95, sum by (le) (rate(webhook_delivery_duration_seconds_bucket[5m])))", "legendFormat": "HTTP attempt p95", "refId": "B"}
+      ],
+      "title": "Observed request latency (not end-to-end delivery latency)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "fieldConfig": {"defaults": {"unit": "ops"}, "overrides": []},
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 24},
+      "id": 6,
+      "targets": [{"expr": "rate(webhook_target_capacity_deferrals_total[5m])", "legendFormat": "committed capacity deferrals", "refId": "A"}],
+      "title": "Target congestion (not HTTP retries)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "fieldConfig": {"defaults": {"unit": "ops"}, "overrides": []},
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 24},
+      "id": 7,
+      "targets": [
+        {"expr": "rate(webhook_history_events_pruned_total[5m])", "legendFormat": "terminal events pruned", "refId": "A"},
+        {"expr": "rate(webhook_history_cleanup_errors_total[5m])", "legendFormat": "cleanup errors", "refId": "B"}
+      ],
+      "title": "Opt-in history retention",
+      "type": "timeseries"
+    }
+  ],
+  "schemaVersion": 39,
+  "tags": ["webhook", "delivery"],
+  "title": "Webhook Dispatcher",
+  "uid": "webhook-dispatcher"
+}

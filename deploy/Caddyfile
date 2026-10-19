@@ -1,0 +1,15 @@
+# Template reverse-proxy config for the optional single-VM / TLS stage in
+# DEPLOYMENT_PLAN.md. Caddy provisions and renews the Let's Encrypt
+# certificate automatically - no manual cert handling needed. Replace the
+# placeholder domain, then wire this file into a production Compose
+# override's caddy service (see DEPLOYMENT_PLAN.md Stage 3).
+#
+# Not wired into the default docker-compose.yml: binding 80/443 on every
+# local `docker compose up` would be unwanted and could itself conflict
+# with anything else already using those ports on a dev machine.
+
+your-domain.example {
+    @internal path /metrics /readyz
+    respond @internal 404
+    reverse_proxy api:8080
+}

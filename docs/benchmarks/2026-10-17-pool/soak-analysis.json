@@ -1,0 +1,40 @@
+{
+  "run": "20261017T100505.759483800Z",
+  "metric_samples": 601,
+  "peak_pending": 9,
+  "post_load_drain_seconds": 0.174077,
+  "resources": [
+    {
+      "service": "verify-20261017100129-616dc327-api-1",
+      "samples": 141,
+      "cpu_avg": 30.39539007092198,
+      "first_memory": "11.08MiB / 512MiB",
+      "last_memory": "14.09MiB / 512MiB",
+      "peak_memory_mib": 14.41
+    },
+    {
+      "service": "verify-20261017100129-616dc327-postgres-1",
+      "samples": 141,
+      "cpu_avg": 30.47127659574468,
+      "first_memory": "68.91MiB / 512MiB",
+      "last_memory": "110.9MiB / 512MiB",
+      "peak_memory_mib": 112.7
+    },
+    {
+      "service": "verify-20261017100129-616dc327-redis-1",
+      "samples": 141,
+      "cpu_avg": 5.471347517730498,
+      "first_memory": "6.469MiB / 128MiB",
+      "last_memory": "7.043MiB / 128MiB",
+      "peak_memory_mib": 10.84
+    },
+    {
+      "service": "verify-20261017100129-616dc327-target-simulator-1",
+      "samples": 141,
+      "cpu_avg": 1.592624113475177,
+      "first_memory": "6.773MiB / 128MiB",
+      "last_memory": "9.16MiB / 128MiB",
+      "peak_memory_mib": 10.17
+    }
+  ]
+}

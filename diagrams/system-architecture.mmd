@@ -1,0 +1,31 @@
+flowchart TD
+    C[HTTP Client] -->|X-API-Key when AUTH_ENABLED| A[Go API]
+    A -->|validate URL: SSRF/redirect policy| OP[Outbound Policy]
+    A -->|event + outbox, one transaction| DB[(PostgreSQL)]
+
+    OR[Outbox Relay] -->|poll unpublished rows| DB
+    OR -->|XADD| RS[(Redis Stream)]
+
+    RSc[Retry Scheduler] -->|due retry + outbox, one transaction| DB
+    RSc -->|reconcile stale unleased transport work| DB
+
+    RS -->|XREADGROUP| WP[Worker Pool]
+    WP -->|re-check status and claim fenced delivery lease| DB
+    WP -->|CircuitAllow / RecordCircuitOutcome| DB
+    WP -->|validate again at dial time| OP
+    WP --> DC[Delivery Client]
+    DC -->|POST + stable key + optional timestamped HMAC| T[Webhook Target /\ninternal/targetsim]
+
+    WP -->|record attempt + transition| DB
+    WP -->|XAUTOCLAIM: recover crashed worker's pending messages| RS
+
+    A --> M[/metrics Prometheus registry/]
+    WP --> M
+    OR --> M
+    M --> P[Prometheus]
+    P --> G[Grafana]
+
+    classDef durable fill:#e8f4ff,stroke:#2a6bb0
+    classDef transport fill:#fff3e0,stroke:#b07a2a
+    class DB durable
+    class RS transport

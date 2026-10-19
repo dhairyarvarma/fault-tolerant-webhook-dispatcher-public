@@ -1,0 +1,146 @@
+**********************
+PowerShell transcript start
+Start time: 20261017141759
+Username: PUBLIC_HOST\PUBLIC_USER
+RunAs User: PUBLIC_HOST\PUBLIC_USER
+Configuration Name: 
+Machine: PUBLIC_HOST (Microsoft Windows NT 10.0.26200.0)
+Host Application: C:\Users\PUBLIC_USER\.cache\codex-runtimes\codex-primary-runtime\dependencies\native\powershell\pwsh.dll -Command try { [Console]::OutputEncoding=[System.Text.Encoding]::UTF8 } catch {}
+$env:VERIFY_RUN_ID='verify-20261017084407-c57adfd8'
+docker compose --env-file deploy/verification.env -p $env:VERIFY_RUN_ID -f deploy/compose.verification.yml --profile restore down --volumes --remove-orphans
+if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+$env:GOCACHE=Join-Path (Get-Location) '.tmp\gocache'
+$env:PATH=(Join-Path (Get-Location) '.tmp\tools')+';'+$env:PATH
+& ./scripts/verify-release.ps1 -Load
+Process ID: 26308
+PSVersion: 7.6.5
+PSEdition: Core
+GitCommitId: 7.6.5
+OS: Microsoft Windows 10.0.26200
+Platform: Win32NT
+PSCompatibleVersions: 1.0, 2.0, 3.0, 4.0, 5.0, 5.1, 6.0, 7.0
+PSRemotingProtocolVersion: 2.4
+SerializationVersion: 1.1.0.1
+WSManStackVersion: 3.0
+**********************
+#1 [internal] load local bake definitions
+#1 reading from stdin 1.44kB done
+#1 DONE 0.0s
+
+#2 [target-simulator internal] load build definition from Dockerfile
+#2 transferring dockerfile: 379B 0.0s done
+#2 DONE 0.1s
+
+#3 [api internal] load metadata for docker.io/library/golang:1.27.2-alpine
+#3 DONE 0.1s
+
+#4 [target-simulator internal] load metadata for docker.io/library/alpine:3.20
+#4 DONE 1.7s
+
+#5 [api internal] load .dockerignore
+#5 transferring context: 104B 0.0s done
+#5 DONE 0.0s
+
+#6 [api internal] load build context
+#6 DONE 0.0s
+
+#7 [target-simulator build 1/6] FROM docker.io/library/golang:1.27.2-alpine@sha256:f92b6ef800e499660581efdabdf25d9d817a9d124eaf900924f0504e7e27e12d
+#7 resolve docker.io/library/golang:1.27.2-alpine@sha256:f92b6ef800e499660581efdabdf25d9d817a9d124eaf900924f0504e7e27e12d 0.1s done
+#7 DONE 0.1s
+
+#8 [api stage-1 1/3] FROM docker.io/library/alpine:3.20@sha256:d9e853e87e55526f6b2917df91a2115c36dd7c696a35be12163d44e6e2a4b6bc
+#8 resolve docker.io/library/alpine:3.20@sha256:d9e853e87e55526f6b2917df91a2115c36dd7c696a35be12163d44e6e2a4b6bc
+#8 resolve docker.io/library/alpine:3.20@sha256:d9e853e87e55526f6b2917df91a2115c36dd7c696a35be12163d44e6e2a4b6bc 0.1s done
+#8 DONE 0.1s
+
+#7 [api build 1/6] FROM docker.io/library/golang:1.27.2-alpine@sha256:f92b6ef800e499660581efdabdf25d9d817a9d124eaf900924f0504e7e27e12d
+#7 resolve docker.io/library/golang:1.27.2-alpine@sha256:f92b6ef800e499660581efdabdf25d9d817a9d124eaf900924f0504e7e27e12d 0.1s done
+#7 DONE 0.1s
+
+#6 [api internal] load build context
+#6 transferring context: 419.54kB 0.2s done
+#6 DONE 0.2s
+
+#9 [target-simulator build 2/6] WORKDIR /src
+#9 CACHED
+
+#10 [target-simulator build 3/6] COPY go.mod go.sum ./
+#10 CACHED
+
+#11 [target-simulator build 4/6] RUN go mod download
+#11 CACHED
+
+#12 [target-simulator build 5/6] COPY . .
+#12 DONE 0.3s
+
+#12 [target-simulator build 5/6] COPY . .
+#12 DONE 0.3s
+
+#13 [api build 6/6] RUN CGO_ENABLED=0 go build -trimpath -o /out/app ./cmd/server
+#13 ...
+
+#14 [target-simulator build 6/6] RUN CGO_ENABLED=0 go build -trimpath -o /out/app ./cmd/targetsim
+#14 DONE 29.2s
+
+#13 [api build 6/6] RUN CGO_ENABLED=0 go build -trimpath -o /out/app ./cmd/server
+#13 ...
+
+#15 [target-simulator stage-1 2/3] RUN apk add --no-cache ca-certificates
+#15 CACHED
+
+#16 [target-simulator stage-1 3/3] COPY --from=build /out/app /usr/local/bin/app
+#16 CACHED
+
+#17 [target-simulator] exporting to image
+#17 exporting layers done
+#17 exporting manifest sha256:05bd4cf200387f6ffd1d3708dad4ab372c9a80b015dda0f0d3fb13b07f251741 0.0s done
+#17 exporting config sha256:a342ed37e8ee5d8821c3a5e7a5be18c8db315549742a5b9de523ec8765acfe49 0.0s done
+#17 exporting attestation manifest sha256:b9b70e00098098b74a69811502972b4ddb6851bc20581ea3570b7ad07591705b
+#17 exporting attestation manifest sha256:b9b70e00098098b74a69811502972b4ddb6851bc20581ea3570b7ad07591705b 0.0s done
+#17 exporting manifest list sha256:a9161611384cf1c3b1eae6a006a6905ee1ed5d1ef84fd2be66cc2ab3af815850 0.0s done
+#17 naming to docker.io/library/webhook-targetsim:verify-verify-20261017084759-4ef69f48 0.0s done
+#17 unpacking to docker.io/library/webhook-targetsim:verify-verify-20261017084759-4ef69f48 0.0s done
+#17 DONE 0.3s
+
+#13 [api build 6/6] RUN CGO_ENABLED=0 go build -trimpath -o /out/app ./cmd/server
+#13 ...
+
+#18 [target-simulator] resolving provenance for metadata file
+#18 DONE 0.1s
+
+#13 [api build 6/6] RUN CGO_ENABLED=0 go build -trimpath -o /out/app ./cmd/server
+#13 DONE 46.7s
+
+#15 [api stage-1 2/3] RUN apk add --no-cache ca-certificates
+#15 CACHED
+
+#19 [api stage-1 3/3] COPY --from=build /out/app /usr/local/bin/app
+#19 CACHED
+
+#20 [api] exporting to image
+#20 exporting layers done
+#20 exporting manifest sha256:c4556f93f06c630d8c4fb28e9ecba9f8fdce77b6b6928e4a83f5b135afaefe44 0.0s done
+#20 exporting config sha256:429cfca91b3051a603c6d61b240c9cefb6cb48376e9b057aa470c7999d7df531
+#20 exporting config sha256:429cfca91b3051a603c6d61b240c9cefb6cb48376e9b057aa470c7999d7df531 0.0s done
+#20 exporting attestation manifest sha256:15ca67c285739e2da0fa1e071a804a0c48284d9bf926ca7c31cd811d310acd36 0.0s done
+#20 exporting manifest list sha256:8ef37b9480d2fe97484182a9629446ed80aafb6e89ff64dae91dfd74f5b4e79a
+#20 exporting manifest list sha256:8ef37b9480d2fe97484182a9629446ed80aafb6e89ff64dae91dfd74f5b4e79a 0.0s done
+#20 naming to docker.io/library/webhook-dispatcher:verify-verify-20261017084759-4ef69f48 done
+#20 unpacking to docker.io/library/webhook-dispatcher:verify-verify-20261017084759-4ef69f48 0.0s done
+#20 DONE 0.3s
+
+#21 [api] resolving provenance for metadata file
+#21 DONE 0.0s
+PASS: container startup, readiness, non-root and CA bundle
+
+PASS: container HTTP acceptance and narrated showcase
+PASS: live Prometheus scrape and Grafana dashboard provisioning
+PASS: backup/restore preserves all five table fingerprints and signing-key usability
+PASS: Redis restart: accepted durable work eventually succeeds
+PASS: SIGKILL after observed claim: durable event recovered
+
+
+**********************
+PowerShell transcript end
+End time: 20261017142206
+**********************

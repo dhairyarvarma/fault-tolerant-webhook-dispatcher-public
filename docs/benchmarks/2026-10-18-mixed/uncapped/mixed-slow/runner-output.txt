@@ -1,0 +1,149 @@
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: C:\Users\PUBLIC_USER\Desktop\falttol_webhook\webhook-dispatcher-ai-handoff\webhook-dispatcher-handoff\reports\generated\mixed-20261018121550-cc8c6f66\mixed-slow\20261018T121743.397902900Z\script.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 50 max VUs, 1m0s max duration (incl. graceful stop):
+              * ingestion: 10.00 iterations/s for 30s (maxVUs: 20-50, gracefulStop: 30s)
+
+
+running (0m01.0s), 00/20 VUs, 10 complete and 0 interrupted iterations
+ingestion   [   3% ] 00/20 VUs  01.0s/30s  10.00 iters/s
+
+running (0m02.0s), 00/20 VUs, 20 complete and 0 interrupted iterations
+ingestion   [   7% ] 00/20 VUs  02.0s/30s  10.00 iters/s
+
+running (0m03.0s), 00/20 VUs, 30 complete and 0 interrupted iterations
+ingestion   [  10% ] 00/20 VUs  03.0s/30s  10.00 iters/s
+
+running (0m04.0s), 00/20 VUs, 40 complete and 0 interrupted iterations
+ingestion   [  13% ] 00/20 VUs  04.0s/30s  10.00 iters/s
+
+running (0m05.0s), 00/20 VUs, 50 complete and 0 interrupted iterations
+ingestion   [  17% ] 00/20 VUs  05.0s/30s  10.00 iters/s
+
+running (0m06.0s), 00/20 VUs, 60 complete and 0 interrupted iterations
+ingestion   [  20% ] 00/20 VUs  06.0s/30s  10.00 iters/s
+
+running (0m07.0s), 00/20 VUs, 70 complete and 0 interrupted iterations
+ingestion   [  23% ] 00/20 VUs  07.0s/30s  10.00 iters/s
+
+running (0m08.0s), 00/20 VUs, 80 complete and 0 interrupted iterations
+ingestion   [  27% ] 00/20 VUs  08.0s/30s  10.00 iters/s
+
+running (0m09.0s), 00/20 VUs, 90 complete and 0 interrupted iterations
+ingestion   [  30% ] 00/20 VUs  09.0s/30s  10.00 iters/s
+
+running (0m10.0s), 00/20 VUs, 100 complete and 0 interrupted iterations
+ingestion   [  33% ] 00/20 VUs  10.0s/30s  10.00 iters/s
+
+running (0m11.0s), 00/20 VUs, 110 complete and 0 interrupted iterations
+ingestion   [  37% ] 00/20 VUs  11.0s/30s  10.00 iters/s
+
+running (0m12.0s), 00/20 VUs, 120 complete and 0 interrupted iterations
+ingestion   [  40% ] 00/20 VUs  12.0s/30s  10.00 iters/s
+
+running (0m13.0s), 00/20 VUs, 130 complete and 0 interrupted iterations
+ingestion   [  43% ] 00/20 VUs  13.0s/30s  10.00 iters/s
+
+running (0m14.0s), 00/20 VUs, 140 complete and 0 interrupted iterations
+ingestion   [  47% ] 00/20 VUs  14.0s/30s  10.00 iters/s
+
+running (0m15.0s), 00/20 VUs, 150 complete and 0 interrupted iterations
+ingestion   [  50% ] 00/20 VUs  15.0s/30s  10.00 iters/s
+
+running (0m16.0s), 00/20 VUs, 160 complete and 0 interrupted iterations
+ingestion   [  53% ] 00/20 VUs  16.0s/30s  10.00 iters/s
+
+running (0m17.0s), 00/20 VUs, 170 complete and 0 interrupted iterations
+ingestion   [  57% ] 00/20 VUs  17.0s/30s  10.00 iters/s
+
+running (0m18.0s), 00/20 VUs, 180 complete and 0 interrupted iterations
+ingestion   [  60% ] 00/20 VUs  18.0s/30s  10.00 iters/s
+
+running (0m19.0s), 00/20 VUs, 190 complete and 0 interrupted iterations
+ingestion   [  63% ] 00/20 VUs  19.0s/30s  10.00 iters/s
+
+running (0m20.0s), 00/20 VUs, 200 complete and 0 interrupted iterations
+ingestion   [  67% ] 00/20 VUs  20.0s/30s  10.00 iters/s
+
+running (0m21.0s), 00/20 VUs, 210 complete and 0 interrupted iterations
+ingestion   [  70% ] 00/20 VUs  21.0s/30s  10.00 iters/s
+
+running (0m22.0s), 00/20 VUs, 220 complete and 0 interrupted iterations
+ingestion   [  73% ] 00/20 VUs  22.0s/30s  10.00 iters/s
+
+running (0m23.0s), 00/20 VUs, 230 complete and 0 interrupted iterations
+ingestion   [  77% ] 00/20 VUs  23.0s/30s  10.00 iters/s
+
+running (0m24.0s), 00/20 VUs, 240 complete and 0 interrupted iterations
+ingestion   [  80% ] 00/20 VUs  24.0s/30s  10.00 iters/s
+
+running (0m25.0s), 00/20 VUs, 250 complete and 0 interrupted iterations
+ingestion   [  83% ] 00/20 VUs  25.0s/30s  10.00 iters/s
+
+running (0m26.0s), 00/20 VUs, 260 complete and 0 interrupted iterations
+ingestion   [  87% ] 00/20 VUs  26.0s/30s  10.00 iters/s
+
+running (0m27.0s), 00/20 VUs, 270 complete and 0 interrupted iterations
+ingestion   [  90% ] 00/20 VUs  27.0s/30s  10.00 iters/s
+
+running (0m28.0s), 00/20 VUs, 280 complete and 0 interrupted iterations
+ingestion   [  93% ] 00/20 VUs  28.0s/30s  10.00 iters/s
+
+running (0m29.0s), 00/20 VUs, 290 complete and 0 interrupted iterations
+ingestion   [  97% ] 00/20 VUs  29.0s/30s  10.00 iters/s
+
+running (0m30.0s), 00/20 VUs, 300 complete and 0 interrupted iterations
+ingestion   [ 100% ] 00/20 VUs  30.0s/30s  10.00 iters/s
+
+
+  █ THRESHOLDS 
+
+    checks
+    ✓ 'rate==1' rate=100.00%
+
+    dropped_iterations
+    ✓ 'count==0' count=0
+
+    http_req_failed
+    ✓ 'rate==0' rate=0.00%
+
+
+  █ TOTAL RESULTS 
+
+    checks_total.......: 301     10.03014/s
+    checks_succeeded...: 100.00% 301 out of 301
+    checks_failed......: 0.00%   0 out of 301
+
+    ✓ event accepted
+
+    HTTP
+    http_req_duration..............: avg=10.11ms min=6.71ms med=9.28ms max=41.9ms p(50)=9.28ms p(95)=14.89ms p(99)=22.53ms
+      { expected_response:true }...: avg=10.11ms min=6.71ms med=9.28ms max=41.9ms p(50)=9.28ms p(95)=14.89ms p(99)=22.53ms
+    http_req_failed................: 0.00%  0 out of 301
+    http_reqs......................: 301    10.03014/s
+
+    EXECUTION
+    dropped_iterations.............: 0      0/s
+    iteration_duration.............: avg=10.54ms min=6.71ms med=9.58ms max=41.9ms p(50)=9.58ms p(95)=15.67ms p(99)=22.53ms
+    iterations.....................: 301    10.03014/s
+    vus............................: 0      min=0        max=0 
+    vus_max........................: 20     min=20       max=20
+
+    NETWORK
+    data_received..................: 117 kB 3.9 kB/s
+    data_sent......................: 99 kB  3.3 kB/s
+
+
+
+
+running (0m30.0s), 00/20 VUs, 301 complete and 0 interrupted iterations
+ingestion ✓ [ 100% ] 00/20 VUs  30s  10.00 iters/s

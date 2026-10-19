@@ -1,0 +1,68 @@
+[
+  {
+    "expression": "webhook_target_capacity_deferrals_total",
+    "response": {
+      "status": "success",
+      "data": {
+        "resultType": "vector",
+        "result": [
+          {
+            "metric": {
+              "__name__": "webhook_target_capacity_deferrals_total",
+              "instance": "api:8080",
+              "job": "webhook-dispatcher"
+            },
+            "value": [
+              1792386229.076,
+              "440"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "expression": "webhook_history_events_pruned_total",
+    "response": {
+      "status": "success",
+      "data": {
+        "resultType": "vector",
+        "result": [
+          {
+            "metric": {
+              "__name__": "webhook_history_events_pruned_total",
+              "instance": "api:8080",
+              "job": "webhook-dispatcher"
+            },
+            "value": [
+              1792386229.109,
+              "0"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "expression": "webhook_history_cleanup_errors_total",
+    "response": {
+      "status": "success",
+      "data": {
+        "resultType": "vector",
+        "result": [
+          {
+            "metric": {
+              "__name__": "webhook_history_cleanup_errors_total",
+              "instance": "api:8080",
+              "job": "webhook-dispatcher"
+            },
+            "value": [
+              1792386229.121,
+              "0"
+            ]
+          }
+        ]
+      }
+    }
+  }
+]

@@ -1,0 +1,191 @@
+package store
+
+import (
+	"context"
+	"fmt"
+	"sync"
+	"testing"
+	"time"
+)
+
+func TestRetention_EligibilityBoundsAndIdempotencyWindow(t *testing.T) {
+	db := testDB(t)
+	ctx := context.Background()
+	targets, events := NewTargetStore(db), NewEventStore(db)
+	target, err := targets.Create(ctx, "retention", "http://example.com", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	eligible := []string{}
+	protected := []string{}
+	for _, kind := range []string{"SUCCEEDED", "CANCELED", "DLQ", "PENDING", "QUEUED", "RETRY_WAIT", "young", "unpublished", "leased", "missing_completion", "new_creation"} {
+		e, _, err := events.CreateWithOutbox(ctx, target.ID, kind, []byte(`{}`), "hash")
+		if err != nil {
+			t.Fatal(err)
+		}
+		status := kind
+		if kind == "young" || kind == "unpublished" || kind == "leased" || kind == "missing_completion" || kind == "new_creation" {
+			status = "SUCCEEDED"
+		}
+		if _, err = db.Exec(`UPDATE events SET status=$2,created_at=now()-interval '48 hours',completed_at=now()-interval '48 hours' WHERE id=$1`, e.ID, status); err != nil {
+			t.Fatal(err)
+		}
+		if kind != "unpublished" {
+			if _, err = db.Exec(`UPDATE outbox_messages SET published_at=now() WHERE event_id=$1`, e.ID); err != nil {
+				t.Fatal(err)
+			}
+		}
+		switch kind {
+		case "young":
+			_, err = db.Exec(`UPDATE events SET completed_at=now() WHERE id=$1`, e.ID)
+		case "leased":
+			_, err = db.Exec(`UPDATE events SET delivery_token=gen_random_uuid(),delivery_lease_until=now()-interval '1 hour' WHERE id=$1`, e.ID)
+		case "missing_completion":
+			_, err = db.Exec(`UPDATE events SET completed_at=NULL WHERE id=$1`, e.ID)
+		case "new_creation":
+			_, err = db.Exec(`UPDATE events SET created_at=now() WHERE id=$1`, e.ID)
+		}
+		if err != nil {
+			t.Fatal(err)
+		}
+		if _, err = db.Exec(`INSERT INTO delivery_attempts(event_id,attempt_number,started_at,outcome) VALUES($1,1,now(),'SUCCESS')`, e.ID); err != nil {
+			t.Fatal(err)
+		}
+		if kind == "SUCCEEDED" || kind == "CANCELED" {
+			eligible = append(eligible, e.ID)
+		} else {
+			protected = append(protected, e.ID)
+		}
+	}
+	// Duplicate acceptance remains protected until its event is actually purged.
+	if _, created, err := events.CreateWithOutbox(ctx, target.ID, "SUCCEEDED", []byte(`{}`), "hash"); err != nil || created {
+		t.Fatalf("duplicate before cleanup: %v %v", created, err)
+	}
+	if n, err := events.PruneCompleted(ctx, 24*time.Hour, 1); err != nil || n != 1 {
+		t.Fatalf("batch=%d err=%v", n, err)
+	}
+	if n, err := events.PruneCompleted(ctx, 24*time.Hour, 100); err != nil || n != 1 {
+		t.Fatalf("remaining=%d err=%v", n, err)
+	}
+	for _, id := range eligible {
+		if _, err := events.GetByID(ctx, id); err != ErrNotFound {
+			t.Fatalf("retained purged event: %v", err)
+		}
+		var n int
+		if err = db.QueryRow(`SELECT (SELECT count(*) FROM delivery_attempts WHERE event_id=$1)+(SELECT count(*) FROM outbox_messages WHERE event_id=$1)`, id).Scan(&n); err != nil || n != 0 {
+			t.Fatalf("children=%d err=%v", n, err)
+		}
+	}
+	for _, id := range protected {
+		if _, err := events.GetByID(ctx, id); err != nil {
+			t.Fatalf("protected event lost: %v", err)
+		}
+	}
+	if _, created, err := events.CreateWithOutbox(ctx, target.ID, "SUCCEEDED", []byte(`{}`), "hash"); err != nil || !created {
+		t.Fatalf("reuse after window: %v %v", created, err)
+	}
+	if n, err := events.PruneCompleted(ctx, time.Hour, 1); err == nil || n != 0 {
+		t.Fatal("unsafe age accepted")
+	}
+	if n, err := events.PruneCompleted(ctx, 24*time.Hour, 0); err == nil || n != 0 {
+		t.Fatal("unbounded batch accepted")
+	}
+}
+
+func TestRetention_ConcurrentExpiryAndAcceptance(t *testing.T) {
+	db := testDB(t)
+	ctx := context.Background()
+	events := NewEventStore(db)
+	target, err := NewTargetStore(db).Create(ctx, "retention", "http://example.com", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for i := 0; i < 40; i++ {
+		if _, _, err := events.CreateWithOutbox(ctx, target.ID, fmt.Sprint(i), []byte(`{}`), "hash"); err != nil {
+			t.Fatal(err)
+		}
+	}
+	if _, err = db.Exec(`UPDATE events SET status='SUCCEEDED',created_at=now()-interval '48 hours',completed_at=now()-interval '48 hours'; UPDATE outbox_messages SET published_at=now();`); err != nil {
+		t.Fatal(err)
+	}
+	var wg sync.WaitGroup
+	start := make(chan struct{})
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		<-start
+		if _, err := events.PruneCompleted(ctx, 24*time.Hour, 100); err != nil {
+			t.Error(err)
+		}
+	}()
+	for i := 0; i < 40; i++ {
+		wg.Add(1)
+		go func(i int) {
+			defer wg.Done()
+			<-start
+			if _, _, err := events.CreateWithOutbox(ctx, target.ID, fmt.Sprint(i), []byte(`{}`), "hash"); err != nil {
+				t.Error(err)
+			}
+		}(i)
+	}
+	close(start)
+	wg.Wait()
+	for i := 0; i < 40; i++ {
+		if _, _, err := events.CreateWithOutbox(ctx, target.ID, fmt.Sprint(i), []byte(`{}`), "hash"); err != nil {
+			t.Fatal(err)
+		}
+	}
+	var n int
+	if err = db.QueryRow(`SELECT count(*) FROM events`).Scan(&n); err != nil || n != 40 {
+		t.Fatalf("events=%d error=%v", n, err)
+	}
+}
+
+func TestRetention_LocksAndRollback(t *testing.T) {
+	db := testDB(t)
+	ctx := context.Background()
+	events := NewEventStore(db)
+	target, err := NewTargetStore(db).Create(ctx, "retention", "http://example.com", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	e, _, err := events.CreateWithOutbox(ctx, target.ID, "old", []byte(`{}`), "hash")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err = db.Exec(`UPDATE events SET status='SUCCEEDED',created_at=now()-interval '48 hours',completed_at=now()-interval '48 hours' WHERE id=$1`, e.ID); err != nil {
+		t.Fatal(err)
+	}
+	if _, err = db.Exec(`UPDATE outbox_messages SET published_at=now() WHERE event_id=$1`, e.ID); err != nil {
+		t.Fatal(err)
+	}
+	tx, err := db.BeginTx(ctx, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer tx.Rollback()
+	if _, err = tx.Exec(`SELECT id FROM events WHERE id=$1 FOR UPDATE`, e.ID); err != nil {
+		t.Fatal(err)
+	}
+	if n, err := events.PruneCompleted(ctx, 24*time.Hour, 10); err != nil || n != 0 {
+		t.Fatalf("did not skip locked row: %d %v", n, err)
+	}
+	if err = tx.Rollback(); err != nil {
+		t.Fatal(err)
+	}
+	if _, err = db.Exec(`INSERT INTO delivery_attempts(event_id,attempt_number,started_at,outcome) VALUES($1,1,now(),'SUCCESS')`, e.ID); err != nil {
+		t.Fatal(err)
+	}
+	// A failing parent delete must roll back the earlier child deletes too.
+	if _, err = db.Exec(`CREATE FUNCTION deny_retention() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN RAISE EXCEPTION 'test failure'; END; $$;
+ CREATE TRIGGER deny_retention BEFORE DELETE ON events FOR EACH ROW EXECUTE FUNCTION deny_retention();`); err != nil {
+		t.Fatal(err)
+	}
+	if n, err := events.PruneCompleted(ctx, 24*time.Hour, 1); err == nil || n != 0 {
+		t.Fatal("failed batch was reported committed")
+	}
+	var attempts, outbox int
+	if err = db.QueryRow(`SELECT (SELECT count(*) FROM delivery_attempts),(SELECT count(*) FROM outbox_messages)`).Scan(&attempts, &outbox); err != nil || attempts != 1 || outbox != 1 {
+		t.Fatalf("rollback lost children: %d %d %v", attempts, outbox, err)
+	}
+}

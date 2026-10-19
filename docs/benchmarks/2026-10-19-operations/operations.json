@@ -1,0 +1,130 @@
+{
+  "finished_at": "2026-10-19T05:03:49.3218749Z",
+  "started_at": "2026-10-19T04:50:37.688296Z",
+  "commit": "06887da6635bc2d208e74b4dcd801456a3fc980c",
+  "checks": [
+    {
+      "name": "Admission rejects, preserves accepted work, and resumes after Redis recovery",
+      "at": "2026-10-19T04:51:53.4310222Z",
+      "detail": {
+        "duplicate_status": 409,
+        "resumed": "3a58e3d3-d219-4422-bade-fb18fe58f5b4",
+        "retry_after": [
+          "5"
+        ],
+        "accepted": [
+          "606fc09b-80b4-40ff-9526-2506759e7962",
+          "2f4a82a8-ee6e-4dff-8bd8-429fbad0ff97",
+          "2fc55145-b839-4800-8fe1-0c3cd609e348"
+        ],
+        "rejection_status": 429
+      }
+    },
+    {
+      "name": "Two instances share work with process-local target caps",
+      "at": "2026-10-19T04:52:09.1349352Z",
+      "detail": {
+        "events": [
+          "5468789e-4fb4-4898-abbc-45dea66eb963",
+          "b18b14d4-27e9-480f-bf02-185c11d8dc39",
+          "ac8d502c-60d8-42ad-a225-4fa403cc9303",
+          "794dea11-e9df-4612-8d04-02c5325178af",
+          "017eb201-307d-42bf-8098-523706dbefd1",
+          "c0539635-1bb3-4f02-b1ca-3609eaf9eea4",
+          "2bda88ba-dc77-4075-8af5-eef207b56999",
+          "8c1c56e3-ac55-450b-b808-9af99c4b347a",
+          "e522fcdb-b823-4a0e-a567-cf03cf7345d3",
+          "841e3329-aa7d-46b5-a026-5afed2231e2b",
+          "4e263d06-24ca-4b9a-816d-bd7a8c398207",
+          "b1864d84-e031-4eaf-bd8c-3985cf904346",
+          "526fbdc1-8e8e-41ed-b534-0db7a3430c46",
+          "2c396972-248d-474c-8c70-6dd4470e1369",
+          "5b92d284-d5ae-47f8-b1e0-29dd26bb09e9",
+          "73f27668-4b64-48f6-993b-266d3222844e"
+        ],
+        "second_peak": 2,
+        "first_peak": 2,
+        "sampled_pair_sum_peak": 4,
+        "containers": [
+          "2a245dec15474b5a21a0ef7aeaf6f01ef6d6e60f8aabdad1f4d6af0d3d7cfdea",
+          "8bc065967a52cda8e187654a3dbb3cecb15dc4d4414862f4ec49ffe3ee4f3fd0"
+        ],
+        "scope": "sequential scrapes, not simultaneous wire measurements"
+      }
+    },
+    {
+      "name": "Surviving instance recovers a killed owners event",
+      "at": "2026-10-19T04:53:20.6125398Z",
+      "detail": {
+        "attempt_count": 1,
+        "event": "05f5f38d-6dbb-4b67-a9ae-1badbbc1f0a5",
+        "kill_to_success_seconds": 64.0913287,
+        "status": "SUCCEEDED",
+        "definition": "Observed first-instance claim; includes kill/polling, not exact HTTP-success crash window"
+      }
+    },
+    {
+      "name": "Capped single-process soak completed with SQL-verified delivery",
+      "at": "2026-10-19T05:03:48.4169966Z",
+      "detail": {
+        "workloads": [
+          {
+            "target": "b112dcc3-e3fe-4e6c-99fe-4768f1d26489",
+            "delivery": {
+              "accepted": 3001,
+              "succeeded": 3001,
+              "dlq": 0,
+              "pending": 0,
+              "canceled": 0,
+              "success_latency_p50_seconds": 0.076795,
+              "success_latency_p95_seconds": 0.116255,
+              "success_latency_p99_seconds": 0.121099
+            },
+            "artifact": "soak-healthy\\20261019T045342.346707700Z",
+            "kind": "healthy"
+          },
+          {
+            "target": "1571187c-4223-4360-a93c-6de39beedef4",
+            "delivery": {
+              "accepted": 1800,
+              "succeeded": 1800,
+              "dlq": 0,
+              "pending": 0,
+              "canceled": 0,
+              "success_latency_p50_seconds": 0.578485,
+              "success_latency_p95_seconds": 3.8348831999999993,
+              "success_latency_p99_seconds": 7.19641226
+            },
+            "artifact": "soak-slow\\20261019T045342.346707700Z",
+            "kind": "slow"
+          }
+        ],
+        "retention_disabled": true,
+        "deferrals": 440
+      }
+    }
+  ],
+  "cpu": [
+    {
+      "Name": "13th Gen Intel(R) Core(TM) i9-13900H",
+      "NumberOfCores": 14,
+      "NumberOfLogicalProcessors": 20
+    }
+  ],
+  "soak_seconds": 600,
+  "status": "passed",
+  "go": "go version go1.27.2 windows/amd64",
+  "run": "operations-20261019045037-f7b3af1e",
+  "images": [
+    "[{\"ID\":\"sha256:858f009f9709ce576febc734aa78b8f6d624b82571f9ddb6bda4377c833b3499\",\"ContainerName\":\"operations-20261019045037-f7b3af1e-redis-1\",\"Repository\":\"redis\",\"Tag\":\"7-alpine\",\"Platform\":\"linux/amd64\",\"Size\":57300241,\"Created\":\"2026-09-17T21:32:46.989770417Z\",\"LastTagTime\":\"2026-10-16T03:20:03.528274168Z\"},{\"ID\":\"sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea\",\"ContainerName\":\"operations-20261019045037-f7b3af1e-postgres-1\",\"Repository\":\"postgres\",\"Tag\":\"16-alpine\",\"Platform\":\"linux/amd64\",\"Size\":419072015,\"Created\":\"2026-09-17T21:31:24.32976807Z\",\"LastTagTime\":\"2026-10-03T13:41:34.662503908Z\"},{\"ID\":\"sha256:288da74355571012def86cfd14df0135009f73987f5fc3b6343ee671af27e984\",\"ContainerName\":\"operations-20261019045037-f7b3af1e-api-1\",\"Repository\":\"webhook-dispatcher\",\"Tag\":\"verify-operations-20261019045037-f7b3af1e\",\"Platform\":\"linux/amd64\",\"Size\":53165250,\"Created\":\"2026-10-19T04:51:32.64798717Z\",\"LastTagTime\":\"2026-10-19T04:51:34.571860845Z\"},{\"ID\":\"sha256:798714a958a64532dd08fe874f49034226a02fabe27861ffe29dd66576058854\",\"ContainerName\":\"operations-20261019045037-f7b3af1e-target-simulator-1\",\"Repository\":\"webhook-targetsim\",\"Tag\":\"verify-operations-20261019045037-f7b3af1e\",\"Platform\":\"linux/amd64\",\"Size\":38705768,\"Created\":\"2026-10-17T10:22:48.485640238Z\",\"LastTagTime\":\"2026-10-19T04:51:18.616758508Z\"},{\"ID\":\"sha256:dbbc38ea21103cefb50396340cd88afec779c7e070b0a7bf5a75b4ce46651d3f\",\"ContainerName\":\"operations-20261019045037-f7b3af1e-grafana-1\",\"Repository\":\"grafana/grafana\",\"Tag\":\"latest\",\"Platform\":\"linux/amd64\",\"Size\":1938171456,\"Created\":\"2026-10-12T12:57:33Z\",\"LastTagTime\":\"2026-10-16T14:54:54.104294055Z\"},{\"ID\":\"sha256:efd719c99d83b060d9daefdcf00360461adf279f45ef5391f8d111892118753e\",\"ContainerName\":\"operations-20261019045037-f7b3af1e-prometheus-1\",\"Repository\":\"prom/prometheus\",\"Tag\":\"latest\",\"Platform\":\"linux/amd64\",\"Size\":381253472,\"Created\":\"2026-09-25T08:06:23.137236845Z\",\"LastTagTime\":\"2026-10-16T14:54:01.645991142Z\"}]",
+    ""
+  ],
+  "os": "Microsoft Windows 10.0.26200",
+  "k6": "k6.exe v1.8.2 (go1.27.0, windows/amd64)",
+  "docker_host": {
+    "cpus": 20,
+    "memory_bytes": 8133451776,
+    "os": "Docker Desktop"
+  },
+  "dirty": true
+}

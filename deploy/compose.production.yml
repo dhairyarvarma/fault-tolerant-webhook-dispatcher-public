@@ -1,0 +1,36 @@
+# Merge after docker-compose.yml. Use up --no-build with a tested SHA image.
+services:
+  api:
+    image: "${WEBHOOK_IMAGE:?Set WEBHOOK_IMAGE to a tested SHA-tagged image}"
+    restart: unless-stopped
+    environment:
+      APP_ENV: production
+      AUTH_ENABLED: "true"
+      ALLOW_PRIVATE_TARGETS: "false"
+      API_KEY: "${API_KEY:?Set a production API key}"
+      SECRET_ENCRYPTION_KEY: "${SECRET_ENCRYPTION_KEY:?Set the production encryption key}"
+      DATABASE_URL: "${DATABASE_URL:?Set the production database URL}"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+  postgres:
+    environment:
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:?Set a production database password}"
+  caddy:
+    image: caddy:2-alpine
+    profiles: [tls]
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on:
+      - api
+volumes:
+  caddy-data:
+  caddy-config:

@@ -1,0 +1,11 @@
+3.24.2
+libcrypto3: Crypto library from openssl
+libcrypto3: https://www.openssl.org/
+libcrypto3: 5099 KiB
+libssl3: SSL shared libraries
+libssl3: https://www.openssl.org/
+libssl3: 823 KiB
+zlib: A compression/decompression Library
+zlib: https://zlib.net/
+zlib: 105 KiB
+810cffb45146b8ca5cd7a3b84c71623209a5cc50c6c5b1bd007742ec4db933f6  /usr/local/bin/app

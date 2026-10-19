@@ -1,0 +1,7 @@
+# Preserve retained evidence byte-for-byte, including on Windows checkouts.
+*.go text eol=lf
+*.sh text eol=lf
+docs/benchmarks/2026-10-17/** -text
+docs/benchmarks/2026-10-17-pool/** -text
+docs/benchmarks/2026-10-18-mixed/** -text
+docs/benchmarks/2026-10-19-operations/** -text
