@@ -95,7 +95,9 @@ Grafana should eventually show:
 
 ## What not to claim
 
-Metrics displayed by Grafana are observations from the running system. They are not automatically benchmark results. Benchmark results should be produced by the dedicated benchmark procedure and recorded in `RESUME_EVIDENCE.md`.
+Metrics displayed by Grafana are observations from the running system, not
+automatically benchmark results. Follow load/README.md and retain raw output,
+workload, source revision and machine conditions alongside benchmark reports.
 
 ## Capacity and retention counters
 

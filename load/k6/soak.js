@@ -4,7 +4,7 @@ import { check } from 'k6';
 // Sustained soak: constant arrival rate for a long duration, aimed at
 // surfacing unbounded growth (memory, pending rows, queue depth) rather
 // than peak throughput. Run with the limit enabled against a normal
-// target; results belong in RESUME_EVIDENCE.md only after a real run.
+// target; retain results in docs/benchmarks/ only after a real run.
 const baseURL = __ENV.BASE_URL || 'http://localhost:8080';
 const targetID = __ENV.TARGET_ID;
 

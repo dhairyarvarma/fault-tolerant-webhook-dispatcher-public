@@ -152,7 +152,7 @@ job has been enabled on the user's existing data or a production deployment.
 
 The native correctness/HTTP suite and patched image build are verified.
 The Go vulnerability rescan reports no findings after the documented updates.
-See docs/validation/2026-10-17-access-and-security.md for race/tool evidence.
+Use the repository's Actions tab for hosted race/tool checks.
 The isolated fresh-checkout rehearsal now verifies live Prometheus scraping,
 Grafana provisioning, backup/restore plus encrypted-secret delivery, and
 Redis/worker recovery. Three current load runs and resource samples are retained
@@ -160,7 +160,7 @@ in docs/benchmarks/2026-10-17/README.md, including the observed delivery backlog
 The pool follow-up in docs/benchmarks/2026-10-17-pool/README.md retains a
 ten-minute, 15,000-event soak, a same-schema local image rollback, and all
 15 dashboard query responses. Hosted tests/race/HTTP acceptance and SHA-tagged
-image publishing now pass; see validation/2026-10-18-github-publication.md.
+image publishing passed in the public release CI run linked from the README.
 Broader capacity/failure envelopes, an independent
 human walkthrough, and any cloud/TLS deployment remain separate
 checks. Query/provisioning checks do not prove visual review of dashboard layout.

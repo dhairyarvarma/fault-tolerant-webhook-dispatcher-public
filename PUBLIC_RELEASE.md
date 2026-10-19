@@ -10,9 +10,9 @@ and unchanged. This publication was explicitly approved by the owner.
 Source is private HEAD 06887da6635bc2d208e74b4dcd801456a3fc980c plus the
 subsequent isolation, deferral-observability, retention and operational-test
 implementation. No application logic or dependency was changed during export.
-PUBLIC_EXPORT.json records inventory/redactions. The source was verified with
+The source was verified with
 Linux race tests, real PostgreSQL/Redis, vet/build and signed HTTP acceptance;
-dated records retain skips, failed attempts and final successful verification.
+benchmark bundles retain skips, failed attempts and successful verification.
 Use this repository's Actions tab for its own hosted verification.
 
 Historical Git SHAs, image identities and private CI URLs refer to the original
@@ -53,9 +53,12 @@ window. Back up and read operator precautions first. It does not prune DLQ,
 targets or Redis history. Target concurrency caps are per process, not a
 distributed fairness guarantee. Delivery is at-least-once, not exactly-once.
 
-There is no demonstrated cloud deployment, production SLA, independent human
-walkthrough or personal interview rehearsal. Development used AI assistance
-and a detailed specification handoff, as the original documents explain.
+There is no demonstrated cloud deployment or production SLA.
 No new license grant is introduced by this export. The inherited Go module
 path is unchanged; supported setup is clone/build, not a claim of go-install
 distribution under the new repository URL.
+
+The public working tree retains technical/user documentation and measurement
+evidence. Internal planning, handoff and interview-preparation documents have
+been removed; older commits still contain them. This cleanup does not rewrite
+history or change the original source and benchmark provenance.

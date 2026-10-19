@@ -2,7 +2,7 @@ import http from 'k6/http';
 import { check } from 'k6';
 
 // Exercise the public ingestion boundary. Create a target first, then pass
-// its ID with TARGET_ID. Results belong in RESUME_EVIDENCE.md only after a
+// its ID with TARGET_ID. Retain results in docs/benchmarks/ only after a
 // reproducible run with its configuration and environment recorded.
 const baseURL = __ENV.BASE_URL || 'http://localhost:8080';
 const targetID = __ENV.TARGET_ID;

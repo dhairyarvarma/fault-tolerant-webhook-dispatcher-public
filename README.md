@@ -1,7 +1,7 @@
 # Fault-Tolerant Webhook Delivery Engine
 
 [CI](https://github.com/dhairyarvarma/fault-tolerant-webhook-dispatcher-public/actions)
-| [Five-minute showcase](docs/showcase.md)
+| [Usage walkthrough](docs/walkthrough.md)
 | [Public snapshot provenance](PUBLIC_RELEASE.md)
 
 This is a separately published privacy-sanitized snapshot. Historical SHAs/CI
@@ -28,10 +28,9 @@ crash can cause a message to be retried; every delivery carries a stable
 
 ## Quickstart
 
-For a recruiter-friendly tour, start with the [five-minute showcase](docs/showcase.md):
-recorded behavior, failure recovery evidence, the measured optimization, and
-resume wording. For an independent setup check, share the
-[fresh-checkout checklist](docs/independent-walkthrough.md).
+For API examples, follow the [usage walkthrough](docs/walkthrough.md).
+For configuration, backup/restore and deployment precautions, read the
+[operations guide](docs/operations.md).
 
 Prerequisites: Docker Desktop with Linux containers and Docker Compose v2.
 Native tests/demo additionally need Go 1.27.2 or later. The shell examples
@@ -125,8 +124,7 @@ This is local release evidence, not cloud deployment or an independent human
 usability test.
 
 For the design explanation, read the
-[crash-boundary case study](docs/case-study-delivery-crash.md). Practice with the
-[ownership worksheet](docs/ownership-rehearsal.md).
+[crash-boundary case study](docs/case-study-delivery-crash.md).
 
 ## Architecture
 
@@ -158,7 +156,7 @@ active delivery leases and unpublished outbox rows. Workers recreate missing
 consumer groups. Expiring UUID claims serialize concurrent queue duplicates;
 a crash after HTTP success can still repeat the HTTP call with the same key.
 This recovery protocol is regression-tested and exercised by the current
-isolated release rehearsal. See `COMPLETION_PLAN.md`.
+isolated release rehearsal. See the [operations guide](docs/operations.md).
 
 ## What's implemented
 
@@ -239,32 +237,20 @@ original backlog and fresh-checkout rehearsal rather than rewriting history.
 - Restore preserved all five durable table fingerprints and permitted new
   delivery using the restored encrypted secret.
 
-These tests used explicit rehearsal resource limits and shortened retry/circuit
-settings. See the report before using any number in a resume. Older figures in
-`RESUME_EVIDENCE.md` remain historical and are not comparable under changed
+These tests used explicit resource limits and shortened retry/circuit
+settings. Compare results only with their recorded workload and source/image
 conditions. The current recorded demo is linked in Development below.
 
-**Completion status**: `COMPLETION_PLAN.md` tracks recovery, concurrency,
-security, and evidence gates still open after feature implementation.
-Native Windows race testing lacks a 64-bit cgo toolchain; Linux Docker is now
-available for race verification. The updated Go dependency scan passes and
-the runtime image builds. See docs/validation/2026-10-17-access-and-security.md
-for the earlier checks. The pool experiment adds a patched Alpine 3.24.2
-runtime scan (zero reported OS/Go-binary findings against its recorded database)
-and a full post-patch release rehearsal. Hosted formatting, vet, vulnerability
-scanning, build, repository tests, Linux race tests and HTTP acceptance pass in
-[the first GitHub Actions run](https://github.com/dhairyarvarma/fault-tolerant-webhook-dispatcher/actions/runs/39094548569)
-at ced4cbe. The [repository](https://github.com/dhairyarvarma/fault-tolerant-webhook-dispatcher)
-is the original private development repository. See PUBLIC_RELEASE.md for
-this snapshot's source/evidence provenance and the Actions tab for its own CI.
-Historical image-publishing evidence and remaining limits are retained.
-No real cloud VM deployment
-has been executed (see `DEPLOYMENT_PLAN.md`).
+Hosted formatting, vet, vulnerability scanning, build, repository tests,
+Linux race tests and HTTP acceptance passed in the
+[public release CI run](https://github.com/dhairyarvarma/fault-tolerant-webhook-dispatcher-public/actions/runs/39203502063).
+The pool experiment retains a dated runtime-image scan and release rehearsal;
+those are not claims about the latest vulnerability database. See
+[provenance](PUBLIC_RELEASE.md) for evidence scope and the Actions tab for
+current CI. No real cloud VM/TLS deployment or production SLA is claimed.
 
-Prepared release procedures are in `docs/operations.md`, including an optional
-production Compose overlay, isolated restore rehearsal, and schema-aware
-rollback. `docs/interview-guide.md` has the demo, design answers, and resume
-bullets that do not reuse obsolete performance numbers.
+The [operations guide](docs/operations.md) covers the optional production
+Compose overlay, isolated restore rehearsal and schema-aware rollback.
 
 ## Development
 
@@ -321,15 +307,12 @@ go run ./cmd/acceptance
 It creates temporary resources and stops its own server on exit. This does
 not restart or replace your running application.
 
-## Project history and planning documents
+## Documentation
 
-This repository was built from a detailed specification handoff package
-(`PROJECT_SPEC.md`, `ARCHITECTURE.md`, `IMPLEMENTATION_PLAN.md`, and the
-other root-level planning docs) rather than from scratch, and built up in
-phases - see `TASKS.md` for what's done and `DECISIONS.md` for the specific
-trade-offs made and why. `AGENTS.md`/`CLAUDE.md` are the engineering rules
-that governed how it was built (no exactly-once claims, no fabricated
-benchmarks, PostgreSQL as the source of truth, etc.). `INTERVIEW_DEPTH.md`
-is a question bank for defending the design choices above; every question
-in it is answerable from this repository's code, tests, and
-`RESUME_EVIDENCE.md` as it stands today.
+- [Architecture](ARCHITECTURE.md), [database design](DATABASE_DESIGN.md) and
+  [delivery semantics](QUEUE_AND_DELIVERY_SEMANTICS.md).
+- [API specification](API_SPEC.md) and [OpenAPI contract](contracts/openapi.yaml).
+- [Engineering decisions](DECISIONS.md), [failure modes](FAILURE_MODES.md),
+  [security model](SECURITY_MODEL.md) and [observability](OBSERVABILITY.md).
+- [Usage, operations, case study and benchmark reports](docs/README.md).
+- [Load-test instructions](load/README.md).

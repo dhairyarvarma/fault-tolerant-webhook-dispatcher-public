@@ -75,7 +75,7 @@ Optional environment variables: `BASE_URL`, `API_KEY`, `RATE`, `DURATION`,
 
 The scenario creates a distinct `Idempotency-Key` per iteration and measures
 only API ingestion. Record the exact command, system configuration, and raw
-output in `RESUME_EVIDENCE.md` before using any result as a claim.
+output alongside a dated report in `docs/benchmarks/` before claiming a result.
 
 ## Evidence runner
 

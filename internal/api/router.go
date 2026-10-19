@@ -13,8 +13,7 @@ import (
 )
 
 // Server holds the HTTP layer's dependencies. Business logic lives in the
-// service package; handlers only translate HTTP <-> service calls, per
-// AGENTS.md rule 6.
+// service package; handlers only translate HTTP <-> service calls.
 type Server struct {
 	targets         *service.TargetService
 	events          *service.EventService

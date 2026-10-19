@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
-# Reproducible failure-mode demo for interview/resume purposes, operationalizing
-# the manual procedures run and recorded in RESUME_EVIDENCE.md and
-# FAILURE_TEST_MATRIX.md. Requires the local stack already running:
+# Reproducible failure-mode demo. Recorded results and conditions are retained
+# in docs/benchmarks/. Requires the local stack already running:
 #   docker compose up -d
 # and the API reachable at BASE_URL (default http://localhost:8080).
 #
@@ -116,7 +115,7 @@ show "-> status reset to RETRY_WAIT/attempt_count=0, but every original" \
      "delivery_attempts row from before DLQ is still there"
 
 step "Demo complete"
-show "See RESUME_EVIDENCE.md for the same procedures with exact timestamps,"
+show "See docs/benchmarks/ for recorded procedures with exact timestamps,"
 show "measured recovery times, and the Redis/PostgreSQL outage and SSRF"
 show "rejection procedures this script doesn't repeat (they require"
 show "stopping real containers, which isn't safe to automate blindly)."

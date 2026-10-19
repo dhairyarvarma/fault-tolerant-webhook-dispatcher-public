@@ -181,8 +181,8 @@ Prometheus was running but unreachable from the host. `PROMETHEUS_PORT`
 now defaults to 9091; Grafana's datasource is unaffected since it reaches
 Prometheus over the Docker network at `prometheus:9090`, not the host port.
 
-Reason: target-simulator's host port is already referenced throughout
-`RESUME_EVIDENCE.md`/`FAILURE_TEST_MATRIX.md` as `localhost:9090`, so it
+Reason: target-simulator's host port was already used throughout
+the existing examples as `localhost:9090`, so it
 was simpler and less disruptive to move Prometheus's port instead of the
 simulator's.
 
@@ -193,10 +193,9 @@ simulator's.
 `ghcr.io/<repo>:<sha>` and `:latest`, authenticated with the automatic
 `GITHUB_TOKEN` - gated to pushes on `main` only, not pull requests.
 
-Reason: GHCR needs no registry account or secret to set up, matching
-`SETUP_PREREQUISITES.md`'s "don't create cloud credentials before they're
-needed." Tagging by commit SHA (not only `latest`) is what makes the
-rollback procedure in `DEPLOYMENT_PLAN.md` possible without rebuilding.
+Reason: GHCR needs no separate registry credentials. Tagging by commit SHA
+(not only `latest`) permits the rollback procedure in docs/operations.md
+without rebuilding.
 
 ## Decision 27 — No persisted DELIVERING state
 
@@ -216,8 +215,7 @@ delivery attempt would mean one more UPDATE per attempt and one more state
 for `RecordAttemptAndTransition`'s row lock to reason about, for
 information already available via `XPENDING` (and already exposed as the
 `webhook_queue_depth` metric). The diagrams and this decision record the
-deviation rather than silently drifting from the source-of-truth spec, per
-`AGENTS.md` rule 8.
+deviation rather than silently drifting from the documented semantics.
 
 Later update: Decision 31 adds a durable UUID delivery lease, while retaining
 the same public status enum. Ownership is now represented by that lease;
@@ -237,8 +235,7 @@ Reason: under a sustained outage of delivery (e.g. targets slow plus
 retry backoff), event creation continues unbounded until the retry
 scheduler catches up; `webhook_queue_depth` only measures the Redis PEL,
 not durable advance commitments. This is the first of the optional
-extensions, added with a documented reason and criteria per
-IMPROVEMENTS.md: bounded durable queue growth, cheap (one indexed COUNT
+extensions: bounded durable queue growth, cheap (one indexed COUNT
 per create with the limit enabled), and off by default so no behavior
 changes unless an operator explicitly opts in. The bound is global, not
 per-target: the runaway case is total accepted work, not one target's
@@ -254,8 +251,8 @@ Database and processing failures leave the message pending for reclaim.
 Reason: acknowledging after a failed database read/write removes the only
 active transport hint while leaving durable work unfinished. Stable outbound
 idempotency keys still protect the expected duplicate HTTP window when a
-target succeeds before the result can be committed. See COMPLETION_PLAN.md
-for the remaining recovery gates; this decision alone does not close them.
+target succeeds before the result can be committed. The crash-boundary case
+study in docs/case-study-delivery-crash.md describes that remaining limitation.
 
 ## Decision 30 — Schedule retries through the transactional outbox
 
@@ -268,8 +265,8 @@ Reason: the previous sequence committed `QUEUED` before publishing to Redis,
 so a crash between those operations stranded the event. Now either both the
 state change and outbox row commit, or neither does. A relay crash after
 publication can still cause duplicate messages, using the same event and
-idempotency key. Recovery from loss of already-published Redis state remains
-a separate open gate in COMPLETION_PLAN.md.
+idempotency key. Decision 31 describes recovery from loss of already-published
+Redis state.
 
 ## Decision 31 — Durable delivery leases and bounded transport reconciliation
 

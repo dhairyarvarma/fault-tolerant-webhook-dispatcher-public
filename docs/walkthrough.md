@@ -56,7 +56,8 @@ retry scheduler claims due retries. A crash before the outbox publication
 marker commits can cause duplicate publication. After complete Redis state
 loss, the scheduler recreates hints for stale, unleased unfinished work
 after a 60s grace period; future retries and unpublished outbox rows are
-excluded. Regression tests cover that path; see `COMPLETION_PLAN.md`.
+excluded. Regression tests cover that path; see the
+[crash-boundary case study](case-study-delivery-crash.md).
 
 ## 4. Worker delivery (in-flight, not persisted)
 

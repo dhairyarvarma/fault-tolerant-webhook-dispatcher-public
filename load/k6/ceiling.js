@@ -4,7 +4,7 @@ import { check } from 'k6';
 // Staged ceiling search: hold each configured rate for its duration in
 // turn and report where 201s stop being the dominant response. This is a
 // capacity probe, not a benchmark number - record the configuration and
-// raw output in RESUME_EVIDENCE.md per its rule (no number without a run).
+// raw output in docs/benchmarks/ (no number without a run).
 //
 // Stages default: 25/s -> 50/s -> 100/s -> 200/s, 30s each. Override with
 // CEILING_STAGES="50:30s,100:30s".
